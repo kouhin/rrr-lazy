@@ -1,32 +1,30 @@
-const React = require('react');
-const { findDOMNode } = require('react-dom');
-const { Component, PropTypes } = React;
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { add, remove } from 'eventlistener';
+import debounce from 'lodash/debounce';
+import throttle from 'lodash.throttle';
 
-const { add, remove } = require('eventlistener');
-const debounce = require('lodash.debounce');
-const throttle = require('lodash.throttle');
+import parentScroll from './utils/parentScroll';
+import inViewport from './utils/inViewport';
 
-const parentScroll = require('./utils/parentScroll');
-const inViewport = require('./utils/inViewport');
-
-export class Lazy extends Component {
+export class Lazy extends React.Component {
 
   static propTypes = {
-    children: PropTypes.node.isRequired,
-    className: PropTypes.string,
-    debounce: PropTypes.bool,
-    offset: PropTypes.number,
-    offsetBottom: PropTypes.number,
-    offsetHorizontal: PropTypes.number,
-    offsetLeft: PropTypes.number,
-    offsetRight: PropTypes.number,
-    offsetTop: PropTypes.number,
-    offsetVertical: PropTypes.number,
-    placeholder: PropTypes.node,
-    style: PropTypes.object,
-    threshold: PropTypes.number,
-    throttle: PropTypes.number,
-    onContentVisible: PropTypes.func,
+    children: React.PropTypes.node.isRequired,
+    className: React.PropTypes.string,
+    debounce: React.PropTypes.bool,
+    offset: React.PropTypes.number,
+    offsetBottom: React.PropTypes.number,
+    offsetHorizontal: React.PropTypes.number,
+    offsetLeft: React.PropTypes.number,
+    offsetRight: React.PropTypes.number,
+    offsetTop: React.PropTypes.number,
+    offsetVertical: React.PropTypes.number,
+    placeholder: React.PropTypes.node,
+    style: React.PropTypes.object,
+    threshold: React.PropTypes.number,
+    throttle: React.PropTypes.number,
+    onContentVisible: React.PropTypes.func,
   };
 
   static defaultProps = {
@@ -89,7 +87,7 @@ export class Lazy extends Component {
   }
 
   getEventNode() {
-    return parentScroll(findDOMNode(this));
+    return parentScroll(ReactDOM.findDOMNode(this));
   }
 
   getOffset() {
@@ -112,7 +110,7 @@ export class Lazy extends Component {
 
   lazyLoadHandler() {
     const offset = this.getOffset();
-    const node = findDOMNode(this);
+    const node = ReactDOM.findDOMNode(this);
     const eventNode = this.getEventNode();
 
     if (inViewport(node, eventNode, offset)) {

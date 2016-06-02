@@ -15,7 +15,10 @@ const inViewport = (element, container, customOffset) => {
     return false;
   }
 
-  let top, left, bottom, right;
+  let top;
+  let left;
+  let bottom;
+  let right;
 
   if (typeof container === 'undefined' || container === window) {
     top = window.pageYOffset;
@@ -41,4 +44,4 @@ const inViewport = (element, container, customOffset) => {
   );
 };
 
-module.exports = inViewport;
+export default inViewport;
