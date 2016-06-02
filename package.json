@@ -1,0 +1,73 @@
+{
+  "name": "rrr-lazy",
+  "version": "0.1.0",
+  "description": "A fork of react-lazy-load and add support for react-router, react-router-redial and redial.",
+  "main": "./lib/index.js",
+  "scripts": {
+    "build": "npm run build:lib && npm run build:umd && npm run build:umd:min",
+    "build:lib": "babel src --out-dir lib",
+    "build:umd": "webpack src/index.js dist/rrr-lazy.js --config webpack.config.development.js",
+    "build:umd:min": "webpack src/index.js dist/rrr-lazy.min.js --config webpack.config.production.js",
+    "clean": "rimraf lib dist",
+    "lint": "eslint src",
+    "prepublish": "npm run clean && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kouhin/rrr-lazy.git"
+  },
+  "files": [
+    "dist",
+    "lib"
+  ],
+  "keywords": [
+    "react",
+    "react-router",
+    "load",
+    "lazy",
+    "lazyload",
+    "redial",
+    "react-component",
+    "reactjs"
+  ],
+  "author": [
+    "Bin Hou <houbin217jz@gmail.com> (https://twitter.com/houbin217jz)",
+    "Jason Brown <loktar00@gmail.com> (https://twitter.com/loktar00)"
+  ],
+  "contributors": [
+    "Sergey Laptev <iamsergeylaptev@gmail.com> (https://twitter.com/iamsergeylaptev)"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-core": "^6.9.1",
+    "babel-eslint": "^6.0.4",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "eslint": "^2.11.1",
+    "eslint-config-airbnb": "^9.0.1",
+    "eslint-plugin-react": "^5.1.1",
+    "react": "^15.1.0",
+    "react-dom": "^15.1.0",
+    "rimraf": "^2.5.2",
+    "webpack": "^1.13.1"
+  },
+  "dependencies": {
+    "eventlistener": "0.0.1",
+    "lodash.over": "^4.13.1",
+    "lodash.debounce": "^4.0.6",
+    "lodash.throttle": "^4.0.1"
+  },
+  "peerDependencies": {
+    "react": "^0.14.0 || ^15.0.0-0",
+    "react-dom": "^0.14.0 || ^15.0.0-0"
+  },
+  "optionalDependencies": {
+    "react-router": "^2.4.1",
+    "react-router-redial": "^0.2.3",
+    "redial": "^0.4.2"
+  }
+}
