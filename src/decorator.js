@@ -2,7 +2,7 @@ import React from 'react';
 import hoistStatics from 'hoist-non-react-statics';
 import over from 'lodash/over';
 
-import Lazy from './Lazy';
+import { Lazy } from './Lazy';
 
 const getDisplayName = (Component) => Component.displayName ||
   Component.name ||
