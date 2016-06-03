@@ -9,7 +9,7 @@
     "build:umd": "webpack src/index.js dist/rrr-lazy.js --config webpack.config.development.js",
     "build:umd:min": "webpack src/index.js dist/rrr-lazy.min.js --config webpack.config.production.js",
     "clean": "rimraf lib dist",
-    "lint": "eslint .",
+    "lint": "eslint src",
     "prepublish": "npm run clean && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
