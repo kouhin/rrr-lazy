@@ -58,12 +58,21 @@ It also provides a decorator for better support for lazy data loading with react
 ``` jsx
 import React from 'react';
 improt { lazy } from 'rrr-lazy';
+import { provideHooks } from 'redial';
 
 @lazy({
   style: {
     height: 720,
   },
   onContentVisible: () => console.log('look ma I have been lazyloaded!')
+})
+@provideHooks({
+  fetch: async () => {
+    await fetchData();
+  },
+  defer: async () => {
+    await fetchDeferredData();
+  },
 })
 class MyComponent extends React.Component {
   render() {
@@ -79,9 +88,26 @@ class MyComponent extends React.Component {
 It's very useful when you want to specify the lazy loading component in react-router configuration.
 
 ``` jsx
+import { browserHistory, Router } from 'react-router';
+import { RedialContext } from 'react-router-redial';
+import { provideHooks } from 'redial';
+
 import { lazy } from 'rrr-lazy';
-render((
-  <Router>
+
+ReactDOM.render((
+  <Router
+    history={browserHistory}
+    render={props => (
+      <RedialContext
+        { ...props }
+        blocking={['fetch']}
+        defer={['defer', 'done']}
+        locals={locals}
+        parallel={false}
+        onError={onError}
+        onStarted={onStarted}
+      />)}
+  >
     <Route path="/" component={App}>
       <Route path="users" components={{main: Users, footer: lazy({ style: { height: 500 } })(UserFooter)}} />
     </Route>
@@ -105,6 +131,14 @@ class App extends React.Component {
   }
 }
 
+@provideHooks({
+  fetch: async () => {
+    await fetchData();
+  },
+  defer: async () => {
+    await fetchDeferredData();
+  },
+})
 class Users extends React.Component {
   render() {
     return (
@@ -118,6 +152,14 @@ class Users extends React.Component {
   }
 }
 
+@provideHooks({
+  fetch: async () => {
+    await fetchData();
+  },
+  defer: async () => {
+    await fetchDeferredData();
+  },
+})
 class UserFooter extends React.Component {
   render() {
     return (
@@ -175,9 +217,9 @@ Type: `Number|String` Default: `250`
 The throttle is managed by an internal function that prevents performance issues from continuous firing of `scroll` events. Using a throttle will set a small timeout when the user scrolls and will keep throttling until the user stops. The default is `250` milliseconds.
 
 #### debounce
-Type: `Boolean` Default: `true`
+Type: `Boolean` Default: `false`
 
-By default the throttling function is actually a [debounce](https://lodash.com/docs#debounce) function so that the checking function is only triggered after a user stops scrolling. To use traditional throttling where it will only check the loadable content every `throttle` milliseconds, set `debounce` to `false`.
+Set `debounce1` to `true` to use [debounce](https://lodash.com/docs#debounce) function so that the checking function is only triggered after a user stops scrolling.
 
 ### style
 Type: `object`
