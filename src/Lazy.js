@@ -96,15 +96,15 @@ export class Lazy extends React.Component {
       offsetTop, offsetBottom, offsetLeft, offsetRight, threshold,
     } = this.props;
 
-    const _offsetAll = threshold || offset;
-    const _offsetVertical = offsetVertical || _offsetAll;
-    const _offsetHorizontal = offsetHorizontal || _offsetAll;
+    const realOffsetAll = threshold || offset;
+    const realOffsetVertical = offsetVertical || realOffsetAll;
+    const realOffsetHorizontal = offsetHorizontal || realOffsetAll;
 
     return {
-      top: offsetTop || _offsetVertical,
-      bottom: offsetBottom || _offsetVertical,
-      left: offsetLeft || _offsetHorizontal,
-      right: offsetRight || _offsetHorizontal,
+      top: offsetTop || realOffsetVertical,
+      bottom: offsetBottom || realOffsetVertical,
+      left: offsetLeft || realOffsetHorizontal,
+      right: offsetRight || realOffsetHorizontal,
     };
   }
 
@@ -135,11 +135,10 @@ export class Lazy extends React.Component {
   render() {
     const { children, className, style } = this.props;
     const { visible } = this.state;
-
-    const elClasses = (
-      'LazyLoad' +
-      (className ? ` ${className}` : '')
-    );
+    const elClasses = [
+      'LazyLoad',
+      ...((className || '').split(/\s+/).filter(v => v)),
+    ].join(' ');
     return visible ? children : (
       this.props.placeholder || <div className={elClasses} style={style} />
     );

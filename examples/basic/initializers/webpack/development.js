@@ -24,7 +24,7 @@ export default {
     path: path.join(process.cwd(), 'tmp/webpack'),
     filename: '[name].js',
     chunkFilename: '[id]-[name].js',
-    publicPath: config.ASSETS_PUBLIC_PATH + '/',
+    publicPath: `${config.ASSETS_PUBLIC_PATH}/`,
   },
 
   plugins: [

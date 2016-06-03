@@ -1,0 +1,75 @@
+{
+  "root": true,
+  "parser": "babel-eslint",
+  "extends": "eslint-config-airbnb",
+  "env": {
+    "browser": true,
+    "node": true,
+    "mocha": true
+  },
+  "plugins": [
+    "react",
+    "import",
+    "babel"
+  ],
+  "globals": {
+    "webpackIsomorphicTools": true,
+    "__SERVER__": true,
+    "__DEVTOOLS__": true
+  },
+  "rules": {
+    "no-console": 0,
+    "operator-linebreak": [
+      2,
+      "after",
+      {
+        "overrides": {
+          "?": "before",
+          ":": "before"
+        }
+      }
+    ],
+    "react/jsx-boolean-value": [
+      2,
+      "always"
+    ],
+    "react/prefer-stateless-function": 0,
+    "react/jsx-handler-names": [
+      2,
+      {
+        "eventHandlerPrefix": "handle",
+        "eventHandlerPropPrefix": "on"
+      }
+    ],
+    "react/jsx-no-duplicate-props": [
+      2,
+      {
+        "ignoreCase": false
+      }
+    ],
+    "react/jsx-sort-props": [
+      2,
+      {
+        "callbacksLast": true,
+        "shorthandFirst": false,
+        "ignoreCase": true
+      }
+    ],
+    "react/sort-prop-types": [
+      2,
+      {
+        "ignoreCase": true,
+        "callbacksLast": true
+      }
+    ],
+    "babel/object-curly-spacing": [
+      2,
+      "always"
+    ],
+    "babel/arrow-parens": [
+      2,
+      "as-needed"
+    ],
+    "babel/no-await-in-loop": 2
+  }
+}

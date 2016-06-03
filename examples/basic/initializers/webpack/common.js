@@ -27,7 +27,7 @@ export default {
     root,
     extensions: ['', '.js', '.jsx'],
     alias: {
-      'react': path.resolve('./node_modules/react'),
+      react: path.resolve('./node_modules/react'),
       'rrr-lazy': path.join(__dirname, '..', '..', '..', '..', 'lib', 'index'),
     },
   },

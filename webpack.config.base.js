@@ -1,13 +1,11 @@
-var webpack = require('webpack');
-
-var reactExternal = {
+const reactExternal = {
   root: 'React',
   commonjs2: 'react',
   commonjs: 'react',
   amd: 'react',
 };
 
-var reactDOMExternal = {
+const reactDOMExternal = {
   root: 'ReactDOM',
   commonjs2: 'react-dom',
   commonjs: 'react-dom',
@@ -16,16 +14,16 @@ var reactDOMExternal = {
 
 module.exports = {
   externals: {
-    'react': reactExternal,
+    react: reactExternal,
     'react-dom': reactDOMExternal,
   },
   module: {
     loaders: [
-      { 
+      {
         test: /\.jsx?$/,
         loader: 'babel-loader',
         exclude: /node_modules/,
-      }
+      },
     ],
   },
   output: {
