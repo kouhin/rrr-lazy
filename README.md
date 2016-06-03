@@ -14,7 +14,7 @@ This is a fork of [react-lazy-load](https://github.com/loktar00/react-lazy-load)
 rrr-lazy requires **React 0.14 or later.**
 
 ```
-npm install --save rrr-lazy
+npm install --save rrr-lazy react-router react-router-redial redial
 ```
 
 ## Examples
@@ -22,7 +22,7 @@ npm install --save rrr-lazy
 
 ## Usage
 
-```jsx
+```javascript
 import React from 'react';
 import { Lazy } from 'rrr-lazy';
 
@@ -55,7 +55,7 @@ const MyComponent = () => (
 
 It also provides a decorator for better support for lazy data loading with react-router, react-router-redial, redial.
 
-``` jsx
+```javascript
 import React from 'react';
 improt { lazy } from 'rrr-lazy';
 import { provideHooks } from 'redial';
@@ -87,7 +87,7 @@ class MyComponent extends React.Component {
 
 It's very useful when you want to specify the lazy loading component in react-router configuration.
 
-``` jsx
+```javascript
 import { browserHistory, Router } from 'react-router';
 import { RedialContext } from 'react-router-redial';
 import { provideHooks } from 'redial';
