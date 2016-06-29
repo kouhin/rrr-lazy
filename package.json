@@ -60,6 +60,7 @@
     "webpack": "^1.13.1"
   },
   "dependencies": {
+    "classnames": "^2.2.5",
     "eventlistener": "0.0.1",
     "lodash": "^4.13.1"
   },
