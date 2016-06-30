@@ -185,10 +185,17 @@ export class Lazy extends React.Component {
         }
       );
     }
+
     if (mode === 'container') {
+      const loading = this.context.redialContext &&
+        (this.context.redialContext.loading ||
+          this.context.redialContext.deferredLoading);
       return React.createElement(
         elementType,
-        props,
+        {
+          ...props,
+          style: loading ? (initStyle || props.style) : props.style,
+        },
         children
       );
     }
