@@ -157,7 +157,10 @@ export class Lazy extends React.Component {
       deferredLoadingClassName,
     } = this.props;
 
-    const restProps = Object.keys(this.props).filter(k => !Lazy.propTypes[k]);
+    const restProps = {};
+    Object.keys(this.props).filter(k => !Lazy.propTypes[k]).forEach(k => {
+      restProps[k] = this.props[k];
+    });
 
     const { visible } = this.state;
     const elClasses = cx('LazyLoad', className, {
