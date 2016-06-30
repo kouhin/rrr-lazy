@@ -135,17 +135,23 @@ export class Lazy extends React.Component {
       const eventNode = this.getEventNode();
       if (node && eventNode && inViewport(node, eventNode, offset)) {
         this.setState({ visible: true });
-        if (this.props.onContentVisible) {
-          this.props.onContentVisible();
+        if (this.context.redialContext) {
+          this.context.redialContext.reloadComponent(this.props.children);
         }
-      }
-    } else {
-      const dom = ReactDOM.findDOMNode(this.refs[CHILD_KEY]);
-      const loading = this.context.redialContext &&
-        (this.context.redialContext.loading || this.context.redialContext.deferredLoading);
-      if (dom || !loading) {
-        this.detachListeners();
-        this.setState({ mounted: true });
+
+        const check = setInterval(() => {
+          const dom = ReactDOM.findDOMNode(this.refs[CHILD_KEY]);
+          const loading = !!this.context.redialContext &&
+            (this.context.redialContext.loading || this.context.redialContext.deferredLoading);
+          if (dom || !loading) {
+            this.detachListeners();
+            clearInterval(check);
+            this.setState({ mounted: true });
+            if (this.props.onContentVisible) {
+              this.props.onContentVisible();
+            }
+          }
+        }, this.props.throttle);
       }
     }
   }

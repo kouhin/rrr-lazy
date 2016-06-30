@@ -1,6 +1,4 @@
 import React from 'react';
-import hoistStatics from 'hoist-non-react-statics';
-import over from 'lodash/over';
 
 import { Lazy } from './Lazy';
 
@@ -19,19 +17,9 @@ export const lazy = (options = {}) => Component => {
       this.displayName = `Lazy${getDisplayName(Component)}`;
     }
 
-    getHandler() {
-      const load = () => {
-        hoistStatics(LazyDecorated, Component);
-        if (this.context.redialContext) {
-          this.context.redialContext.reloadComponent(LazyDecorated);
-        }
-      };
-      return over([load, options.onContentVisible].filter(v => !!v));
-    }
-
     render() {
       return (
-        <Lazy {...options} onContentVisible={this.getHandler()}>
+        <Lazy {...options}>
           <Component {...this.props} />
         </Lazy>
       );
