@@ -16,6 +16,7 @@ export class Lazy extends React.Component {
     debounce: React.PropTypes.bool,
     deferredLoadingClassName: React.PropTypes.string,
     elementType: React.PropTypes.string,
+    initStyle: React.PropTypes.object,
     loadingClassName: React.PropTypes.string,
     mode: React.PropTypes.oneOf(['container', 'placeholder']),
     offset: React.PropTypes.number,
@@ -35,6 +36,7 @@ export class Lazy extends React.Component {
     debounce: false,
     deferredLoadingClassName: 'isDeferredLoading',
     elementType: 'div',
+    initStyle: null,
     loadingClassName: 'isLoading',
     mode: 'placeholder',
     offset: 0,
@@ -150,6 +152,7 @@ export class Lazy extends React.Component {
       children,
       className,
       elementType,
+      initStyle,
       mode,
       visibleClassName,
       loadingClassName,
@@ -176,7 +179,10 @@ export class Lazy extends React.Component {
     if (!visible) {
       return React.createElement(
         elementType,
-        props
+        {
+          ...props,
+          style: initStyle || props.style,
+        }
       );
     }
     if (mode === 'container') {

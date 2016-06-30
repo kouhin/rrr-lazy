@@ -219,7 +219,7 @@ The throttle is managed by an internal function that prevents performance issues
 #### debounce
 Type: `Boolean` Default: `false`
 
-Set `debounce1` to `true` to use [debounce](https://lodash.com/docs#debounce) function so that the checking function is only triggered after a user stops scrolling.
+Set `debounce` to `true` to use [debounce](https://lodash.com/docs#debounce) function so that the checking function is only triggered after a user stops scrolling.
 
 ### mode
 Type: `placeholder` | `container` Default: `placeholder`
@@ -232,6 +232,11 @@ Type: `placeholder` | `container` Default: `placeholder`
 Type: `string` Default: `div`
 
 A html element that is used for creating placeholder.
+
+### initStyle
+Type: `object` Default: null
+
+`initStyle` overrides the style of placeholder before your content is loaded.
 
 ### className
 Type: `string`
