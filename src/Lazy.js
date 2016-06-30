@@ -8,6 +8,8 @@ import cx from 'classnames';
 import parentScroll from './utils/parentScroll';
 import inViewport from './utils/inViewport';
 
+const CHILD_KEY = 'RRR_LAZY_CHILD_KEY';
+
 export class Lazy extends React.Component {
 
   static propTypes = {
@@ -67,7 +69,14 @@ export class Lazy extends React.Component {
       }
     }
 
-    this.state = { visible: false };
+    if (React.Children.count(props.children) > 1) {
+      console.warn('[rrr-lazy] Only one child is allowed');
+    }
+
+    this.state = {
+      visible: false,
+      mounted: false,
+    };
   }
 
   componentDidMount() {
@@ -90,14 +99,14 @@ export class Lazy extends React.Component {
   }
 
   shouldComponentUpdate(_nextProps, nextState) {
-    return nextState.visible;
+    return this.state.visible !== nextState.visible ||
+      this.state.mounted !== nextState.mounted;
   }
 
   componentWillUnmount() {
     if (this.lazyLoadHandler.cancel) {
       this.lazyLoadHandler.cancel();
     }
-
     this.detachListeners();
   }
 
@@ -124,18 +133,23 @@ export class Lazy extends React.Component {
   }
 
   lazyLoadHandler() {
-    const offset = this.getOffset();
-    const node = ReactDOM.findDOMNode(this);
-    const eventNode = this.getEventNode();
-
-    if (node && eventNode && inViewport(node, eventNode, offset)) {
-      const { onContentVisible } = this.props;
-
-      this.setState({ visible: true });
-      this.detachListeners();
-
-      if (onContentVisible) {
-        onContentVisible();
+    if (!this.state.visible) {
+      const offset = this.getOffset();
+      const node = ReactDOM.findDOMNode(this);
+      const eventNode = this.getEventNode();
+      if (node && eventNode && inViewport(node, eventNode, offset)) {
+        this.setState({ visible: true });
+        if (this.props.onContentVisible) {
+          this.props.onContentVisible();
+        }
+      }
+    } else {
+      const dom = ReactDOM.findDOMNode(this.refs[CHILD_KEY]);
+      const loading = this.context.redialContext &&
+        (this.context.redialContext.loading || this.context.redialContext.deferredLoading);
+      if (dom || !loading) {
+        this.detachListeners();
+        this.setState({ mounted: true });
       }
     }
   }
@@ -148,55 +162,60 @@ export class Lazy extends React.Component {
   }
 
   render() {
-    const {
-      children,
-      className,
-      elementType,
-      initStyle,
-      mode,
-      visibleClassName,
-      loadingClassName,
-      deferredLoadingClassName,
-    } = this.props;
-
     const restProps = {};
     Object.keys(this.props).filter(k => !Lazy.propTypes[k]).forEach(k => {
       restProps[k] = this.props[k];
     });
 
-    const { visible } = this.state;
-    const elClasses = cx('LazyLoad', className, {
-      [visibleClassName]: visible,
-      [loadingClassName]: this.context.redialContext &&
+    const { visible, mounted } = this.state;
+    const elClasses = cx('LazyLoad', this.props.className, {
+      [this.props.visibleClassName]: visible && mounted,
+      [this.props.loadingClassName]: this.context.redialContext &&
         this.context.redialContext.loading,
-      [deferredLoadingClassName]: this.context.redialContext &&
+      [this.props.deferredLoadingClassName]: this.context.redialContext &&
         this.context.redialContext.deferredLoading,
     });
+
     const props = {
       ...restProps,
       className: elClasses,
     };
+
+    const initStyle = this.props.initStyle || this.props.style;
+
     if (!visible) {
       return React.createElement(
-        elementType,
+        this.props.elementType,
         {
           ...props,
-          style: initStyle || props.style,
+          style: initStyle,
         }
       );
     }
 
-    if (mode === 'container') {
-      const loading = this.context.redialContext &&
-        (this.context.redialContext.loading ||
-          this.context.redialContext.deferredLoading);
+    const children = React.cloneElement(this.props.children, {
+      ref: CHILD_KEY,
+    });
+
+    if (this.props.mode === 'container') {
       return React.createElement(
-        elementType,
+        this.props.elementType,
         {
           ...props,
-          style: loading ? (initStyle || props.style) : props.style,
+          style: this.state.mounted ? props.style : initStyle,
         },
         children
+      );
+    }
+
+    if (!this.state.mounted) {
+      return React.createElement(
+        this.props.elementType,
+        {
+          ...props,
+          style: initStyle,
+        },
+        children,
       );
     }
     return children;
