@@ -1,6 +1,6 @@
 {
   "name": "rrr-lazy",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A fork of react-lazy-load and add support for react-router, react-router-redial and redial.",
   "main": "./lib/index.js",
   "scripts": {
