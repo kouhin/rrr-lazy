@@ -16,10 +16,8 @@ export class Lazy extends React.Component {
     children: React.PropTypes.node.isRequired,
     className: React.PropTypes.string,
     debounce: React.PropTypes.bool,
-    deferredLoadingClassName: React.PropTypes.string,
     elementType: React.PropTypes.string,
     initStyle: React.PropTypes.object,
-    loadingClassName: React.PropTypes.string,
     mode: React.PropTypes.oneOf(['container', 'placeholder']),
     offset: React.PropTypes.number,
     offsetBottom: React.PropTypes.number,
@@ -36,10 +34,8 @@ export class Lazy extends React.Component {
 
   static defaultProps = {
     debounce: false,
-    deferredLoadingClassName: 'isDeferredLoading',
     elementType: 'div',
     initStyle: null,
-    loadingClassName: 'isLoading',
     mode: 'placeholder',
     offset: 0,
     offsetBottom: 0,
@@ -170,10 +166,6 @@ export class Lazy extends React.Component {
     const { visible, mounted } = this.state;
     const elClasses = cx('LazyLoad', this.props.className, {
       [this.props.visibleClassName]: visible && mounted,
-      [this.props.loadingClassName]: this.context.redialContext &&
-        this.context.redialContext.loading,
-      [this.props.deferredLoadingClassName]: this.context.redialContext &&
-        this.context.redialContext.deferredLoading,
     });
 
     const props = {

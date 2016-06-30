@@ -248,14 +248,6 @@ Type: `string` Default: `isVisible`
 
 The className that used in **container** mode when component is visible.
 
-### loadingClassName
-Type: `string` Default: `isLoading`
-
-The className of placeholder that used in **container** mode during loading by react-router-redial.
-
-### deferredLoadingClassName
-Type: `string` Default: `isDeferredLoading`
-
 The className of placeholder that used in **container** mode during redial deferred by react-router-redial.
 
 ### onContentVisible
