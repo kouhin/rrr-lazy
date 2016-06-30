@@ -221,22 +221,43 @@ Type: `Boolean` Default: `false`
 
 Set `debounce1` to `true` to use [debounce](https://lodash.com/docs#debounce) function so that the checking function is only triggered after a user stops scrolling.
 
-### style
-Type: `object`
+### mode
+Type: `placeholder` | `container` Default: `placeholder`
 
-The style of Lazy component.
+`placeholder` mode: Once your content is loaded, placeholder will be removed.
+
+`container` mode: placeholder won't be removed and act as a container when your content are loaded.
+
+### elementType
+Type: `string` Default: `div`
+
+A html element that is used for creating placeholder.
 
 ### className
 Type: `string`
 
 The className of Lazy component.
 
-### placeholder
-Type: Any
+### visibleClassName
+Type: `string` Default: `isVisible`
 
-A customized placeholder for Lazy component instead of default placeholder.
+The className that used in **container** mode when component is visible.
+
+### loadingClassName
+Type: `string` Default: `isLoading`
+
+The className of placeholder that used in **container** mode during loading by react-router-redial.
+
+### deferredLoadingClassName
+Type: `string` Default: `isDeferredLoading`
+
+The className of placeholder that used in **container** mode during redial deferred by react-router-redial.
 
 ### onContentVisible
 Type `Function`
 
 A callback function to execute when the content appears on the screen.
+
+### Other Props
+
+Other props will be delegated to placeholder.

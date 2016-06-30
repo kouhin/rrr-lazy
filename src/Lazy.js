@@ -14,7 +14,9 @@ export class Lazy extends React.Component {
     children: React.PropTypes.node.isRequired,
     className: React.PropTypes.string,
     debounce: React.PropTypes.bool,
+    deferredLoadingClassName: React.PropTypes.string,
     elementType: React.PropTypes.string,
+    loadingClassName: React.PropTypes.string,
     mode: React.PropTypes.oneOf(['container', 'placeholder']),
     offset: React.PropTypes.number,
     offsetBottom: React.PropTypes.number,
@@ -23,15 +25,17 @@ export class Lazy extends React.Component {
     offsetRight: React.PropTypes.number,
     offsetTop: React.PropTypes.number,
     offsetVertical: React.PropTypes.number,
-    style: React.PropTypes.object,
     threshold: React.PropTypes.number,
     throttle: React.PropTypes.number,
+    visibleClassName: React.PropTypes.string,
     onContentVisible: React.PropTypes.func,
   };
 
   static defaultProps = {
     debounce: false,
+    deferredLoadingClassName: 'isDeferredLoading',
     elementType: 'div',
+    loadingClassName: 'isLoading',
     mode: 'placeholder',
     offset: 0,
     offsetBottom: 0,
@@ -42,6 +46,7 @@ export class Lazy extends React.Component {
     offsetVertical: 0,
     placeHolderMode: 'once',
     throttle: 250,
+    visibleClassName: 'isVisible',
   };
 
   static contextTypes = {
@@ -147,15 +152,19 @@ export class Lazy extends React.Component {
       className,
       elementType,
       mode,
-      ...restProps,
+      visibleClassName,
+      loadingClassName,
+      deferredLoadingClassName,
     } = this.props;
+
+    const restProps = Object.keys(this.props).filter(k => !Lazy.propTypes[k]);
 
     const { visible } = this.state;
     const elClasses = cx('LazyLoad', className, {
-      isVisible: visible,
-      isLoading: this.context.redialContext &&
+      [visibleClassName]: visible,
+      [loadingClassName]: this.context.redialContext &&
         this.context.redialContext.loading,
-      isDeferredLoading: this.contextTypes.redialContext &&
+      [deferredLoadingClassName]: this.context.redialContext &&
         this.context.redialContext.deferredLoading,
     });
     const props = {
