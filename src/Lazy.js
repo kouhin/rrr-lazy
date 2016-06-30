@@ -44,7 +44,6 @@ export class Lazy extends React.Component {
     offsetRight: 0,
     offsetTop: 0,
     offsetVertical: 0,
-    placeHolderMode: 'once',
     throttle: 250,
     visibleClassName: 'isVisible',
   };
