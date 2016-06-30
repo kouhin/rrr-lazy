@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { add, remove } from 'eventlistener';
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
+import cx from 'classnames';
 
 import parentScroll from './utils/parentScroll';
 import inViewport from './utils/inViewport';
@@ -13,6 +14,10 @@ export class Lazy extends React.Component {
     children: React.PropTypes.node.isRequired,
     className: React.PropTypes.string,
     debounce: React.PropTypes.bool,
+    deferredLoadingClassName: React.PropTypes.string,
+    elementType: React.PropTypes.string,
+    loadingClassName: React.PropTypes.string,
+    mode: React.PropTypes.oneOf(['container', 'placeholder']),
     offset: React.PropTypes.number,
     offsetBottom: React.PropTypes.number,
     offsetHorizontal: React.PropTypes.number,
@@ -20,15 +25,18 @@ export class Lazy extends React.Component {
     offsetRight: React.PropTypes.number,
     offsetTop: React.PropTypes.number,
     offsetVertical: React.PropTypes.number,
-    placeholder: React.PropTypes.node,
-    style: React.PropTypes.object,
     threshold: React.PropTypes.number,
     throttle: React.PropTypes.number,
+    visibleClassName: React.PropTypes.string,
     onContentVisible: React.PropTypes.func,
   };
 
   static defaultProps = {
     debounce: false,
+    deferredLoadingClassName: 'isDeferredLoading',
+    elementType: 'div',
+    loadingClassName: 'isLoading',
+    mode: 'placeholder',
     offset: 0,
     offsetBottom: 0,
     offsetHorizontal: 0,
@@ -36,11 +44,17 @@ export class Lazy extends React.Component {
     offsetRight: 0,
     offsetTop: 0,
     offsetVertical: 0,
+    placeHolderMode: 'once',
     throttle: 250,
+    visibleClassName: 'isVisible',
   };
 
-  constructor(props) {
-    super(props);
+  static contextTypes = {
+    redialContext: React.PropTypes.object,
+  };
+
+  constructor(props, context) {
+    super(props, context);
 
     this.lazyLoadHandler = this.lazyLoadHandler.bind(this);
 
@@ -113,7 +127,7 @@ export class Lazy extends React.Component {
     const node = ReactDOM.findDOMNode(this);
     const eventNode = this.getEventNode();
 
-    if (inViewport(node, eventNode, offset)) {
+    if (node && eventNode && inViewport(node, eventNode, offset)) {
       const { onContentVisible } = this.props;
 
       this.setState({ visible: true });
@@ -133,14 +147,43 @@ export class Lazy extends React.Component {
   }
 
   render() {
-    const { children, className, style } = this.props;
+    const {
+      children,
+      className,
+      elementType,
+      mode,
+      visibleClassName,
+      loadingClassName,
+      deferredLoadingClassName,
+    } = this.props;
+
+    const restProps = Object.keys(this.props).filter(k => !Lazy.propTypes[k]);
+
     const { visible } = this.state;
-    const elClasses = [
-      'LazyLoad',
-      ...((className || '').split(/\s+/).filter(v => v)),
-    ].join(' ');
-    return visible ? children : (
-      this.props.placeholder || <div className={elClasses} style={style} />
-    );
+    const elClasses = cx('LazyLoad', className, {
+      [visibleClassName]: visible,
+      [loadingClassName]: this.context.redialContext &&
+        this.context.redialContext.loading,
+      [deferredLoadingClassName]: this.context.redialContext &&
+        this.context.redialContext.deferredLoading,
+    });
+    const props = {
+      ...restProps,
+      className: elClasses,
+    };
+    if (!visible) {
+      return React.createElement(
+        elementType,
+        props
+      );
+    }
+    if (mode === 'container') {
+      return React.createElement(
+        elementType,
+        props,
+        children
+      );
+    }
+    return children;
   }
 }
