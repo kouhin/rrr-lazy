@@ -8,8 +8,6 @@ import cx from 'classnames';
 import parentScroll from './utils/parentScroll';
 import inViewport from './utils/inViewport';
 
-const CHILD_KEY = 'RRR_LAZY_CHILD_KEY';
-
 export class Lazy extends React.Component {
 
   static propTypes = {
@@ -18,6 +16,8 @@ export class Lazy extends React.Component {
     debounce: React.PropTypes.bool,
     elementType: React.PropTypes.string,
     initStyle: React.PropTypes.object,
+    lazyLoading: React.PropTypes.bool,
+    loadComponent: React.PropTypes.func,
     mode: React.PropTypes.oneOf(['container', 'placeholder']),
     offset: React.PropTypes.number,
     offsetBottom: React.PropTypes.number,
@@ -48,12 +48,8 @@ export class Lazy extends React.Component {
     visibleClassName: 'isVisible',
   };
 
-  static contextTypes = {
-    redialContext: React.PropTypes.object,
-  };
-
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
 
     this.lazyLoadHandler = this.lazyLoadHandler.bind(this);
 
@@ -135,21 +131,21 @@ export class Lazy extends React.Component {
       const eventNode = this.getEventNode();
       if (node && eventNode && inViewport(node, eventNode, offset)) {
         this.setState({ visible: true });
-        if (this.context.redialContext) {
-          this.context.redialContext.reloadComponent(this.props.children);
+        if (this.props.loadComponent) {
+          this.props.loadComponent(this.props.children);
         }
 
         const check = setInterval(() => {
-          const dom = ReactDOM.findDOMNode(this.refs[CHILD_KEY]);
-          const loading = !!this.context.redialContext &&
-            (this.context.redialContext.loading || this.context.redialContext.deferredLoading);
+          const dom = ReactDOM.findDOMNode(this.refs[0]);
+          const loading = this.props.lazyLoading;
           if (dom || !loading) {
             this.detachListeners();
             clearInterval(check);
-            this.setState({ mounted: true });
-            if (this.props.onContentVisible) {
-              this.props.onContentVisible();
-            }
+            this.setState({ mounted: true }, () => {
+              if (this.props.onContentVisible) {
+                this.props.onContentVisible();
+              }
+            });
           }
         }, this.props.throttle);
       }
@@ -191,8 +187,8 @@ export class Lazy extends React.Component {
       );
     }
 
-    const children = React.cloneElement(this.props.children, {
-      ref: CHILD_KEY,
+    const child = React.cloneElement(React.Children.only(this.props.children), {
+      ref: 0,
     });
 
     if (this.props.mode === 'container') {
@@ -202,7 +198,7 @@ export class Lazy extends React.Component {
           ...props,
           style: this.state.mounted ? props.style : initStyle,
         },
-        children
+        child
       );
     }
 
@@ -213,9 +209,9 @@ export class Lazy extends React.Component {
           ...props,
           style: initStyle,
         },
-        children,
+        child
       );
     }
-    return children;
+    return child;
   }
 }
