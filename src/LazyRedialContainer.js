@@ -3,10 +3,31 @@ import React from 'react';
 export default class LazyRedialContainer extends React.Component {
   static propTypes = {
     children: React.PropTypes.node.isRequired,
+    onLazyCompleted: React.PropTypes.func,
+    onLazyError: React.PropTypes.func,
+    onLazyStarted: React.PropTypes.func,
+  };
+
+  static defaultProps = {
+    onLazyError(err, type) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error(type, err);
+      }
+    },
+    onLazyStarted() {
+      if (process.env.NODE_ENV !== 'production') {
+        console.info('Loading started.');
+      }
+    },
+    onLazyCompleted() {
+      if (process.env.NODE_ENV !== 'production') {
+        console.info('Loading completed');
+      }
+    },
   };
 
   static contextTypes = {
-    lazyRedialContext: React.PropTypes.object,
+    redialContext: React.PropTypes.object,
   };
 
   constructor(props, context) {
@@ -14,30 +35,28 @@ export default class LazyRedialContainer extends React.Component {
     this.state = {
       loading: false,
     };
-    this.loadComponent = this.loadComponent.bind(this);
+    this.loadLazyComponent = this.loadLazyComponent.bind(this);
   }
 
-  loadComponent(components, force = true) {
-    const lazyRedialContext = this.context.lazyRedialContext;
+  loadLazyComponent(components) {
+    const {
+      triggerComponent,
+      blocking = [],
+      defer = [],
+    } = this.context.redialContext;
+    const hooks = [].concat(blocking, defer);
+
     this.setState({
       loading: true,
     });
-    return lazyRedialContext.runHooks(
-      lazyRedialContext.hooks,
-      components,
-      this.props,
-      force,
-    ).then(lazyRedialContext.onLazyCompleted)
+    this.props.onLazyStarted(components);
+    return triggerComponent(components, hooks)
       .then(() => {
-        this.setState({
-          loading: false,
-        });
-      })
-      .catch(err => {
-        lazyRedialContext.onLazyError(err, components);
-        this.setState({
-          loading: false,
-        });
+        this.setState({ loading: false });
+        this.props.onLazyCompleted();
+      }).catch(err => {
+        this.setState({ loading: false });
+        this.props.onLazyError(err);
       });
   }
 
@@ -47,7 +66,7 @@ export default class LazyRedialContainer extends React.Component {
     return React.cloneElement(children, {
       ...props,
       lazyLoading: loading,
-      loadComponent: this.loadComponent,
+      loadLazyComponent: this.loadLazyComponent,
     });
   }
 }

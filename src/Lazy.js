@@ -17,7 +17,7 @@ export class Lazy extends React.Component {
     elementType: React.PropTypes.string,
     initStyle: React.PropTypes.object,
     lazyLoading: React.PropTypes.bool,
-    loadComponent: React.PropTypes.func,
+    loadLazyComponent: React.PropTypes.func,
     mode: React.PropTypes.oneOf(['container', 'placeholder']),
     offset: React.PropTypes.number,
     offsetBottom: React.PropTypes.number,
@@ -131,8 +131,8 @@ export class Lazy extends React.Component {
       const eventNode = this.getEventNode();
       if (node && eventNode && inViewport(node, eventNode, offset)) {
         this.setState({ visible: true });
-        if (this.props.loadComponent) {
-          this.props.loadComponent(this.props.children);
+        if (this.props.loadLazyComponent) {
+          this.props.loadLazyComponent(this.props.children);
         }
 
         const check = setInterval(() => {
