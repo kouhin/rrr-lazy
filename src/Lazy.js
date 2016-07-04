@@ -134,22 +134,8 @@ export class Lazy extends React.Component {
       const node = ReactDOM.findDOMNode(this);
       const eventNode = this.getEventNode();
       if (node && eventNode && inViewport(node, eventNode, offset)) {
+        this.detachListeners();
         this.setState({ visible: true });
-
-        const complete = () => {
-          const check = setInterval(() => {
-            const dom = ReactDOM.findDOMNode(this.refs[0]);
-            if (!!dom) {
-              this.detachListeners();
-              clearInterval(check);
-              this.setState({ mounted: true }, () => {
-                if (this.props.onContentVisible) {
-                  this.props.onContentVisible();
-                }
-              });
-            }
-          }, this.props.throttle);
-        };
         if (this.context.redialContext) {
           const {
             triggerComponent,
@@ -159,13 +145,20 @@ export class Lazy extends React.Component {
           const hooks = [].concat(blocking, defer);
           triggerComponent(this.props.children, hooks)
             .then(() => {
-              complete();
+              this.setState({ mounted: true }, () => {
+                if (this.props.onContentVisible) {
+                  this.props.onContentVisible();
+                }
+              });
             }).catch(err => {
               console.error(err);
-              this.detachListeners();
             });
         } else {
-          complete();
+          this.setState({ mounted: true }, () => {
+            if (this.props.onContentVisible) {
+              this.props.onContentVisible();
+            }
+          });
         }
       }
     }
