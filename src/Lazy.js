@@ -48,6 +48,10 @@ export class Lazy extends React.Component {
     visibleClassName: 'isVisible',
   };
 
+  static contextTypes = {
+    redialContext: React.PropTypes.object,
+  };
+
   constructor(props) {
     super(props);
 
@@ -131,23 +135,38 @@ export class Lazy extends React.Component {
       const eventNode = this.getEventNode();
       if (node && eventNode && inViewport(node, eventNode, offset)) {
         this.setState({ visible: true });
-        if (this.props.loadLazyComponent) {
-          this.props.loadLazyComponent(this.props.children);
-        }
 
-        const check = setInterval(() => {
-          const dom = ReactDOM.findDOMNode(this.refs[0]);
-          const loading = this.props.lazyLoading;
-          if (dom || !loading) {
-            this.detachListeners();
-            clearInterval(check);
-            this.setState({ mounted: true }, () => {
-              if (this.props.onContentVisible) {
-                this.props.onContentVisible();
-              }
+        const complete = () => {
+          const check = setInterval(() => {
+            const dom = ReactDOM.findDOMNode(this.refs[0]);
+            if (!!dom) {
+              this.detachListeners();
+              clearInterval(check);
+              this.setState({ mounted: true }, () => {
+                if (this.props.onContentVisible) {
+                  this.props.onContentVisible();
+                }
+              });
+            }
+          }, this.props.throttle);
+        };
+        if (this.context.redialContext) {
+          const {
+            triggerComponent,
+            blocking = [],
+            defer = [],
+          } = this.context.redialContext;
+          const hooks = [].concat(blocking, defer);
+          triggerComponent(this.props.children, hooks)
+            .then(() => {
+              complete();
+            }).catch(err => {
+              console.error(err);
+              this.detachListeners();
             });
-          }
-        }, this.props.throttle);
+        } else {
+          complete();
+        }
       }
     }
   }
