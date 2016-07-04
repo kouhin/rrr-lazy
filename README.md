@@ -6,6 +6,8 @@ A fork of react-lazy-load and add support for react-router, react-router-redial 
 [![build status](https://img.shields.io/travis/kouhin/rrr-lazy.svg?style=flat-square)](https://travis-ci.org/kouhin/rrr-lazy)
 [![dependency status](https://david-dm.org/kouhin/rrr-lazy.svg?style=flat-square)](https://david-dm.org/kouhin/rrr-lazy)
 
+**NOTICE: rrr-lazy is under heavy development and is not yet ready for production use.**
+
 ## Notice
 
 This is a fork of [react-lazy-load](https://github.com/loktar00/react-lazy-load).
