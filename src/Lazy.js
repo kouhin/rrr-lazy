@@ -16,8 +16,6 @@ export class Lazy extends React.Component {
     debounce: React.PropTypes.bool,
     elementType: React.PropTypes.string,
     initStyle: React.PropTypes.object,
-    lazyLoading: React.PropTypes.bool,
-    loadLazyComponent: React.PropTypes.func,
     mode: React.PropTypes.oneOf(['container', 'placeholder']),
     offset: React.PropTypes.number,
     offsetBottom: React.PropTypes.number,
@@ -199,9 +197,7 @@ export class Lazy extends React.Component {
       );
     }
 
-    const child = React.cloneElement(React.Children.only(this.props.children), {
-      ref: 0,
-    });
+    const child = this.props.children;
 
     if (this.props.mode === 'container') {
       return React.createElement(

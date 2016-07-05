@@ -27,9 +27,16 @@ export const lazy = (options = {}) => Component => {
     }
 
     render() {
+      const {
+        redialMap,
+      } = this.context.redialContext;
+      const redialProps = redialMap.get(Component) || {};
       return (
         <Lazy {...options} onContentVisible={this.getHandler()}>
-          <Component {...this.props} />
+          <Component
+            {...this.props}
+            {...redialProps}
+          />
         </Lazy>
       );
     }
