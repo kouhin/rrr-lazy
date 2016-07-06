@@ -47,7 +47,7 @@ export class Lazy extends React.Component {
   };
 
   static contextTypes = {
-    redialContext: React.PropTypes.object,
+    routerHookContext: React.PropTypes.object,
   };
 
   constructor(props) {
@@ -134,14 +134,11 @@ export class Lazy extends React.Component {
       if (node && eventNode && inViewport(node, eventNode, offset)) {
         this.detachListeners();
         this.setState({ visible: true });
-        if (this.context.redialContext) {
+        if (this.context.routerHookContext) {
           const {
-            triggerComponent,
-            blocking = [],
-            defer = [],
-          } = this.context.redialContext;
-          const hooks = [].concat(blocking, defer);
-          triggerComponent(this.props.children, hooks)
+            reloadComponent,
+          } = this.context.routerHookContext;
+          reloadComponent(this.props.children.type)
             .then(() => {
               this.setState({ mounted: true }, () => {
                 if (this.props.onContentVisible) {

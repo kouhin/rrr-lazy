@@ -11,7 +11,7 @@ const getDisplayName = Component => Component.displayName ||
 export const lazy = (options = {}) => Component => {
   class LazyDecorated extends React.Component {
     static contextTypes = {
-      redialContext: React.PropTypes.object,
+      routerHookContext: React.PropTypes.object,
     };
 
     constructor(props, context) {
@@ -28,14 +28,14 @@ export const lazy = (options = {}) => Component => {
 
     render() {
       const {
-        redialMap,
-      } = this.context.redialContext;
-      const redialProps = redialMap.get(Component) || {};
+        getComponentProps,
+      } = this.context.routerHookContext;
+      const hookProps = getComponentProps(Component)() || {};
       return (
         <Lazy {...options} onContentVisible={this.getHandler()}>
           <Component
             {...this.props}
-            {...redialProps}
+            {...hookProps}
           />
         </Lazy>
       );

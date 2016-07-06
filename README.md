@@ -1,7 +1,7 @@
 rrr-lazy
 =========================
 
-A fork of react-lazy-load and add support for react-router, react-router-redial and redial.
+A fork of react-lazy-load and add support for react-router, react-router-hook.
 
 [![build status](https://img.shields.io/travis/kouhin/rrr-lazy.svg?style=flat-square)](https://travis-ci.org/kouhin/rrr-lazy)
 [![dependency status](https://david-dm.org/kouhin/rrr-lazy.svg?style=flat-square)](https://david-dm.org/kouhin/rrr-lazy)
@@ -16,7 +16,7 @@ This is a fork of [react-lazy-load](https://github.com/loktar00/react-lazy-load)
 rrr-lazy requires **React 0.14 or later.**
 
 ```
-npm install --save rrr-lazy react-router react-router-redial redial
+npm install --save rrr-lazy react-router react-router-hook
 ```
 
 ## Examples
@@ -55,12 +55,12 @@ const MyComponent = () => (
 );
 ```
 
-It also provides a decorator for better support for lazy data loading with react-router, react-router-redial, redial.
+It also provides a decorator for better support for lazy data loading with react-router, react-router-hook.
 
 ```javascript
 import React from 'react';
 improt { lazy } from 'rrr-lazy';
-import { provideHooks } from 'redial';
+import { routerHooks } from 'react-router-hook';
 
 @lazy({
   style: {
@@ -68,7 +68,7 @@ import { provideHooks } from 'redial';
   },
   onContentVisible: () => console.log('look ma I have been lazyloaded!')
 })
-@provideHooks({
+@routerHooks({
   fetch: async () => {
     await fetchData();
   },
@@ -91,24 +91,39 @@ It's very useful when you want to specify the lazy loading component in react-ro
 
 ```javascript
 import { browserHistory, Router } from 'react-router';
-import { RedialContext } from 'react-router-redial';
-import { provideHooks } from 'redial';
+import { useRouterHook, routerHooks } from 'react-router-hook';
 
 import { lazy } from 'rrr-lazy';
+
+const locals = {
+  dispatch: store.dispatch, // redux store and dispatch, you can use any locals
+  getState: store.getState,
+};
+
+const onAborted = () => {
+  console.info('aborted');
+};
+const onCompleted = () => {
+  console.info('completed');
+};
+const onError = (error) => {
+  console.error(error);
+};
+
+const routerHookMiddleware = useRouterHook({
+  locals,
+  routerWillEnterHooks: ['fetch'],
+  routerDidEnterHooks: ['defer', 'done'],
+  onAborted,
+  onStarted,
+  onCompleted,
+  onError,
+});
 
 ReactDOM.render((
   <Router
     history={browserHistory}
-    render={props => (
-      <RedialContext
-        { ...props }
-        blocking={['fetch']}
-        defer={['defer', 'done']}
-        locals={locals}
-        parallel={false}
-        onError={onError}
-        onStarted={onStarted}
-      />)}
+    render={applyRouterMiddleware(routerHookMiddleware)}
   >
     <Route path="/" component={App}>
       <Route path="users" components={{main: Users, footer: lazy({ style: { height: 500 } })(UserFooter)}} />
@@ -133,7 +148,7 @@ class App extends React.Component {
   }
 }
 
-@provideHooks({
+@routerHooks({
   fetch: async () => {
     await fetchData();
   },
@@ -154,7 +169,7 @@ class Users extends React.Component {
   }
 }
 
-@provideHooks({
+@routerHooks({
   fetch: async () => {
     await fetchData();
   },
@@ -250,7 +265,7 @@ Type: `string` Default: `isVisible`
 
 The className that used in **container** mode when component is visible.
 
-The className of placeholder that used in **container** mode during redial deferred by react-router-redial.
+The className of placeholder that used in **container** mode during deferred by react-router-hook.
 
 ### onContentVisible
 Type `Function`
