@@ -29,7 +29,7 @@ export const lazy = (options = {}) => Component => {
     render() {
       const { children, ...props } = this.props; // eslint-disable-line no-unused-vars
       return (
-        <Lazy {...options} onContentVisible={this.getHandler()}>
+        <Lazy {...props} {...options} onContentVisible={this.getHandler()}>
           <Component
             {...props}
           />
