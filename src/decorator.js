@@ -12,6 +12,7 @@ export const lazy = (options = {}) => Component => {
   class LazyDecorated extends React.Component {
     static propTypes = {
       children: React.PropTypes.node,
+      reloadComponent: React.PropTypes.func,
     };
 
     constructor(props, context) {
@@ -27,9 +28,19 @@ export const lazy = (options = {}) => Component => {
     }
 
     render() {
-      const { children, ...props } = this.props; // eslint-disable-line no-unused-vars
+      const {
+        children, // eslint-disable-line no-unused-vars
+        reloadComponent,
+        ...props,
+      } = this.props;
+      const reload = reloadComponent && typeof reloadComponent === 'function'
+      ? (() => reloadComponent(Component)) : (() => null);
       return (
-        <Lazy {...props} {...options} onContentVisible={this.getHandler()}>
+        <Lazy
+          {...options}
+          reload={reload}
+          onContentVisible={this.getHandler()}
+        >
           <Component
             {...props}
           />
