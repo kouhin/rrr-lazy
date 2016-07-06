@@ -10,8 +10,8 @@ const getDisplayName = Component => Component.displayName ||
 
 export const lazy = (options = {}) => Component => {
   class LazyDecorated extends React.Component {
-    static contextTypes = {
-      routerHookContext: React.PropTypes.object,
+    static propTypes = {
+      children: React.PropTypes.node,
     };
 
     constructor(props, context) {
@@ -27,15 +27,11 @@ export const lazy = (options = {}) => Component => {
     }
 
     render() {
-      const {
-        getComponentProps,
-      } = this.context.routerHookContext;
-      const hookProps = getComponentProps(Component)() || {};
+      const { children, ...props } = this.props; // eslint-disable-line no-unused-vars
       return (
         <Lazy {...options} onContentVisible={this.getHandler()}>
           <Component
-            {...this.props}
-            {...hookProps}
+            {...props}
           />
         </Lazy>
       );

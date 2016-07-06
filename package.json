@@ -67,8 +67,7 @@
   },
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0-0",
-    "react-dom": "^0.14.0 || ^15.0.0-0",
-    "react-router-hook": "^0.0.2"
+    "react-dom": "^0.14.0 || ^15.0.0-0"
   },
   "optionalDependencies": {
     "react-router": "^2.4.1"

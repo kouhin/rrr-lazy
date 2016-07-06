@@ -24,6 +24,7 @@ export class Lazy extends React.Component {
     offsetRight: React.PropTypes.number,
     offsetTop: React.PropTypes.number,
     offsetVertical: React.PropTypes.number,
+    reloadComponent: React.PropTypes.func,
     threshold: React.PropTypes.number,
     throttle: React.PropTypes.number,
     visibleClassName: React.PropTypes.string,
@@ -134,19 +135,18 @@ export class Lazy extends React.Component {
       if (node && eventNode && inViewport(node, eventNode, offset)) {
         this.detachListeners();
         this.setState({ visible: true });
-        if (this.context.routerHookContext) {
-          const {
-            reloadComponent,
-          } = this.context.routerHookContext;
-          reloadComponent(this.props.children.type)
+        if (this.props.reloadComponent && typeof this.props.reloadComponent === 'function') {
+          Promise.resolve()
+            .then(() => this.props.reloadComponent())
             .then(() => {
               this.setState({ mounted: true }, () => {
                 if (this.props.onContentVisible) {
                   this.props.onContentVisible();
                 }
               });
-            }).catch(err => {
-              console.error(err);
+            })
+            .catch(error => {
+              console.error(error);
             });
         } else {
           this.setState({ mounted: true }, () => {
