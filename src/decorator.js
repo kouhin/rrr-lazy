@@ -20,26 +20,22 @@ export const lazy = (options = {}) => Component => {
       this.displayName = `Lazy${getDisplayName(Component)}`;
     }
 
-    getHandler() {
-      const load = () => {
-        hoistStatics(LazyDecorated, Component);
-      };
-      return over([load, options.onContentVisible].filter(v => !!v));
-    }
-
     render() {
       const {
         children, // eslint-disable-line no-unused-vars
         reloadComponent,
         ...props,
       } = this.props;
+
       const reload = reloadComponent && typeof reloadComponent === 'function'
-      ? (() => reloadComponent(Component)) : (() => null);
+        ? () => {
+          hoistStatics(LazyDecorated, Component);
+          return reloadComponent();
+        } : null;
       return (
         <Lazy
           {...options}
           reload={reload}
-          onContentVisible={this.getHandler()}
         >
           <Component
             {...props}
