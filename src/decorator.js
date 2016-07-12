@@ -1,6 +1,5 @@
 import React from 'react';
 import hoistStatics from 'hoist-non-react-statics';
-import over from 'lodash/over';
 
 import { Lazy } from './Lazy';
 
@@ -23,23 +22,22 @@ export const lazy = (options = {}) => Component => {
     render() {
       const {
         children, // eslint-disable-line no-unused-vars
-        reloadComponent,
-        ...props,
+        ...restProps,
       } = this.props;
 
-      const reload = reloadComponent && typeof reloadComponent === 'function'
+      const reloadLazyComponent = this.props.reloadComponent &&
+        typeof this.props.reloadComponent === 'function'
         ? () => {
           hoistStatics(LazyDecorated, Component);
-          return reloadComponent();
+          return this.props.reloadComponent();
         } : null;
       return (
         <Lazy
           {...options}
-          reload={reload}
+          {...restProps}
+          reloadLazyComponent={reloadLazyComponent}
         >
-          <Component
-            {...props}
-          />
+          <Component />
         </Lazy>
       );
     }
