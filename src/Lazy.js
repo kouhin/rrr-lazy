@@ -11,8 +11,9 @@ import inViewport from './utils/inViewport';
 export class Lazy extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node.isRequired,
+    children: React.PropTypes.node,
     className: React.PropTypes.string,
+    Component: React.PropTypes.object,
     debounce: React.PropTypes.bool,
     elementType: React.PropTypes.string,
     initStyle: React.PropTypes.object,
@@ -67,7 +68,7 @@ export class Lazy extends React.Component {
       }
     }
 
-    if (React.Children.count(props.children) > 1) {
+    if (!!props.children && React.Children.count(props.children) > 1) {
       console.warn('[rrr-lazy] Only one child is allowed');
     }
 
@@ -169,6 +170,7 @@ export class Lazy extends React.Component {
     const {
       children,
       className,
+      Component,
       debounce,
       elementType,
       initStyle,
@@ -211,7 +213,21 @@ export class Lazy extends React.Component {
       );
     }
 
-    const child = React.cloneElement(children, restProps);
+    if (!this.children) {
+      if (!!children) {
+        this.children = children;
+      } else if (!!Component) {
+        this.children = <Component />;
+      } else {
+        this.children = null;
+      }
+    }
+
+    if (!this.children) {
+      return null;
+    }
+
+    const child = React.cloneElement(this.children, restProps);
 
     if (mode === 'container' || !this.state.mounted) {
       return React.createElement(

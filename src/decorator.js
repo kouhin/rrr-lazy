@@ -47,10 +47,9 @@ export const lazy = (options = {}) => Component => {
         <Lazy
           {...options}
           {...restProps}
+          Component={Component}
           reloadLazyComponent={reloadLazyComponent}
-        >
-          <Component />
-        </Lazy>
+        />
       );
     }
   }
