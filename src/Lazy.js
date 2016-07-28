@@ -33,23 +33,25 @@ export class Lazy extends React.Component {
     onContentVisible: React.PropTypes.func,
   };
 
-  static defaultProps = {
-    debounce: false,
-    elementType: 'div',
-    initStyle: null,
-    mode: 'placeholder',
-    offset: 0,
-    offsetBottom: 0,
-    offsetHorizontal: 0,
-    offsetLeft: 0,
-    offsetRight: 0,
-    offsetTop: 0,
-    offsetVertical: 0,
-    reloadLazyComponent: () => null,
-    style: null,
-    throttle: 250,
-    visibleClassName: 'isVisible',
-  };
+  static get defaultProps() {
+    return {
+      debounce: false,
+      elementType: 'div',
+      initStyle: null,
+      mode: 'placeholder',
+      offset: 0,
+      offsetBottom: 0,
+      offsetHorizontal: 0,
+      offsetLeft: 0,
+      offsetRight: 0,
+      offsetTop: 0,
+      offsetVertical: 0,
+      reloadLazyComponent: () => null,
+      style: null,
+      throttle: 250,
+      visibleClassName: 'isVisible',
+    };
+  }
 
   static contextTypes = {
     routerHookContext: React.PropTypes.object,
