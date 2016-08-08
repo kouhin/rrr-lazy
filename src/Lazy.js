@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { add, remove } from 'eventlistener';
 import lodashDebounce from 'lodash/debounce';
 import lodashThrottle from 'lodash/throttle';
+import isEqual from 'lodash/isEqual';
 import cx from 'classnames';
 
 import parentScroll from './utils/parentScroll';
@@ -97,6 +98,12 @@ export class Lazy extends React.Component {
     if (!this.state.visible) {
       this.lazyLoadHandler();
     }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.state.visible !== nextState.visible ||
+      this.state.mounted !== nextState.mounted ||
+      !isEqual(this.props.style !== nextProps.style);
   }
 
   componentWillUnmount() {

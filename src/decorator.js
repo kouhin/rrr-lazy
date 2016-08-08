@@ -16,11 +16,15 @@ export const lazy = (options = {}) => Component => {
 
     constructor(props, context) {
       super(props, context);
-      this.displayName = `Lazy${getDisplayName(Component)}`;
+      this.displayName = `lazy(${getDisplayName(Component)})`;
     }
 
     componentWillMount() {
       this.staticKeys = Object.keys(LazyDecorated);
+    }
+
+    shouldComponentUpdate() {
+      return false;
     }
 
     componentWillUnmount() {
