@@ -23,10 +23,6 @@ export const lazy = (options = {}) => Component => {
       this.staticKeys = Object.keys(LazyDecorated);
     }
 
-    shouldComponentUpdate() {
-      return false;
-    }
-
     componentWillUnmount() {
       Object.keys(LazyDecorated).forEach(k => {
         if (this.staticKeys.indexOf(k) === -1) {

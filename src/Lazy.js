@@ -100,12 +100,6 @@ export class Lazy extends React.Component {
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.state.visible !== nextState.visible ||
-      this.state.mounted !== nextState.mounted ||
-      !isEqual(this.props.style !== nextProps.style);
-  }
-
   componentWillUnmount() {
     if (this.lazyLoadHandler.cancel) {
       this.lazyLoadHandler.cancel();
