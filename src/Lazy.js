@@ -1,15 +1,13 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { add, remove } from 'eventlistener';
 import lodashDebounce from 'lodash/debounce';
 import lodashThrottle from 'lodash/throttle';
-import isEqual from 'lodash/isEqual';
 import cx from 'classnames';
 
 import parentScroll from './utils/parentScroll';
 import inViewport from './utils/inViewport';
 
-export class Lazy extends React.Component {
+export default class Lazy extends React.Component {
 
   static propTypes = {
     children: React.PropTypes.node,
@@ -62,6 +60,12 @@ export class Lazy extends React.Component {
     super(props);
 
     this.lazyLoadHandler = this.lazyLoadHandler.bind(this);
+    this.placeHolder = React.createElement(
+      props.elementType,
+      {
+        ref: node => (this.node = node),
+      }
+    );
 
     if (props.throttle > 0) {
       if (props.debounce) {
@@ -108,7 +112,7 @@ export class Lazy extends React.Component {
   }
 
   getEventNode() {
-    return parentScroll(ReactDOM.findDOMNode(this));
+    return parentScroll(this.node);
   }
 
   getOffset() {
@@ -132,9 +136,11 @@ export class Lazy extends React.Component {
   lazyLoadHandler() {
     if (!this.state.visible) {
       const offset = this.getOffset();
-      const node = ReactDOM.findDOMNode(this);
+      if (!this.node) {
+        return;
+      }
       const eventNode = this.getEventNode();
-      if (node && eventNode && inViewport(node, eventNode, offset)) {
+      if (this.node && eventNode && inViewport(this.node, eventNode, offset)) {
         this.detachListeners();
         this.setState({ visible: true });
         if (this.props.reloadLazyComponent &&
@@ -207,8 +213,8 @@ export class Lazy extends React.Component {
     };
 
     if (!visible) {
-      return React.createElement(
-        elementType,
+      return React.cloneElement(
+        this.placeHolder,
         {
           ...placeHolderProps,
           style: initStyle || style,
@@ -217,9 +223,9 @@ export class Lazy extends React.Component {
     }
 
     if (!this.children) {
-      if (!!children) {
+      if (children) {
         this.children = children;
-      } else if (!!Component) {
+      } else if (Component) {
         this.children = <Component />;
       } else {
         this.children = null;
@@ -233,8 +239,8 @@ export class Lazy extends React.Component {
     const child = React.cloneElement(this.children, restProps);
 
     if (mode === 'container' || !this.state.mounted) {
-      return React.createElement(
-        this.props.elementType,
+      return React.cloneElement(
+        this.placeHolder,
         {
           ...placeHolderProps,
           style: this.state.mounted ? style : initStyle,

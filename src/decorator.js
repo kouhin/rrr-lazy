@@ -1,23 +1,18 @@
 import React from 'react';
 import hoistStatics from 'hoist-non-react-statics';
 
-import { Lazy } from './Lazy';
+import Lazy from './Lazy';
 
 const getDisplayName = Component => Component.displayName ||
   Component.name ||
   (typeof Component === 'string' ? Component : 'Component');
 
-export const lazy = (options = {}) => Component => {
+export default (options = {}) => Component => {
   class LazyDecorated extends React.Component {
     static propTypes = {
       children: React.PropTypes.node,
       reloadComponent: React.PropTypes.func,
     };
-
-    constructor(props, context) {
-      super(props, context);
-      this.displayName = `lazy(${getDisplayName(Component)})`;
-    }
 
     componentWillMount() {
       this.staticKeys = Object.keys(LazyDecorated);
@@ -53,6 +48,7 @@ export const lazy = (options = {}) => Component => {
       );
     }
   }
+  LazyDecorated.displayName = `lazy(${getDisplayName(Component)})`;
   LazyDecorated.WrappedComponent = Component;
   return LazyDecorated;
 };
