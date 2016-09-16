@@ -3,6 +3,8 @@ import { add, remove } from 'eventlistener';
 import lodashDebounce from 'lodash/debounce';
 import lodashThrottle from 'lodash/throttle';
 import cx from 'classnames';
+import setImmediate from 'async/setImmediate';
+import shallowCompare from 'react-addons-shallow-compare';
 
 import parentScroll from './utils/parentScroll';
 import inViewport from './utils/inViewport';
@@ -86,22 +88,28 @@ export default class Lazy extends React.Component {
   }
 
   componentDidMount() {
-    const eventNode = this.getEventNode();
-
-    this.lazyLoadHandler();
-
-    if (this.lazyLoadHandler.flush) {
-      this.lazyLoadHandler.flush();
-    }
-
-    add(window, 'resize', this.lazyLoadHandler);
-    add(eventNode, 'scroll', this.lazyLoadHandler);
+    setImmediate(() => {
+      this.lazyLoadHandler();
+      if (this.lazyLoadHandler.flush) {
+        this.lazyLoadHandler.flush();
+      }
+      setImmediate(() => {
+        add(window, 'resize', this.lazyLoadHandler);
+        add(this.getEventNode(), 'scroll', this.lazyLoadHandler);
+      });
+    });
   }
 
   componentWillReceiveProps() {
-    if (!this.state.visible) {
-      this.lazyLoadHandler();
-    }
+    setImmediate(() => {
+      if (!this.state.visible) {
+        this.lazyLoadHandler();
+      }
+    });
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return shallowCompare(this, nextProps, nextState);
   }
 
   componentWillUnmount() {
@@ -112,7 +120,10 @@ export default class Lazy extends React.Component {
   }
 
   getEventNode() {
-    return parentScroll(this.node);
+    if (!this.eventNode) {
+      this.eventNode = parentScroll(this.node);
+    }
+    return this.eventNode;
   }
 
   getOffset() {
@@ -142,26 +153,36 @@ export default class Lazy extends React.Component {
       const eventNode = this.getEventNode();
       if (this.node && eventNode && inViewport(this.node, eventNode, offset)) {
         this.detachListeners();
-        this.setState({ visible: true });
+        setImmediate(() => {
+          this.setState({ visible: true });
+        });
         if (this.props.reloadLazyComponent &&
           typeof this.props.reloadLazyComponent === 'function') {
           Promise.resolve()
             .then(() => this.props.reloadLazyComponent())
             .then(() => {
-              this.setState({ mounted: true }, () => {
-                if (this.props.onContentVisible) {
-                  this.props.onContentVisible();
-                }
+              setImmediate(() => {
+                this.setState({ mounted: true }, () => {
+                  if (this.props.onContentVisible) {
+                    setImmediate(() => {
+                      this.props.onContentVisible();
+                    });
+                  }
+                });
               });
             })
             .catch(error => {
               console.error(error);
             });
         } else {
-          this.setState({ mounted: true }, () => {
-            if (this.props.onContentVisible) {
-              this.props.onContentVisible();
-            }
+          setImmediate(() => {
+            this.setState({ mounted: true }, () => {
+              if (this.props.onContentVisible) {
+                setImmediate(() => {
+                  this.props.onContentVisible();
+                });
+              }
+            });
           });
         }
       }
@@ -169,9 +190,8 @@ export default class Lazy extends React.Component {
   }
 
   detachListeners() {
-    const eventNode = this.getEventNode();
     remove(window, 'resize', this.lazyLoadHandler);
-    remove(eventNode, 'scroll', this.lazyLoadHandler);
+    remove(this.getEventNode(), 'scroll', this.lazyLoadHandler);
   }
 
   render() {

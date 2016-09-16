@@ -61,10 +61,12 @@
     "webpack": "^1.13.1"
   },
   "dependencies": {
+    "async": "^2.0.1",
     "classnames": "^2.2.5",
     "eventlistener": "0.0.1",
     "hoist-non-react-statics": "^1.2.0",
-    "lodash": "^4.15.0"
+    "lodash": "^4.15.0",
+    "react-addons-shallow-compare": "^15.3.2"
   },
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0-0",
