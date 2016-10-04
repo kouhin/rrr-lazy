@@ -1,7 +1,7 @@
 const isHidden = element =>
   element.offsetParent === null;
 
-const offset = element => {
+const offset = (element) => {
   const rect = element.getBoundingClientRect();
 
   return {

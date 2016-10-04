@@ -14,10 +14,10 @@ export default class Lazy extends React.Component {
   static propTypes = {
     children: React.PropTypes.node,
     className: React.PropTypes.string,
-    Component: React.PropTypes.object,
+    Component: React.PropTypes.object, // eslint-disable-line react/forbid-prop-types
     debounce: React.PropTypes.bool,
     elementType: React.PropTypes.string,
-    initStyle: React.PropTypes.object,
+    initStyle: React.PropTypes.object, // eslint-disable-line react/forbid-prop-types
     mode: React.PropTypes.oneOf(['container', 'placeholder']),
     offset: React.PropTypes.number,
     offsetBottom: React.PropTypes.number,
@@ -27,7 +27,7 @@ export default class Lazy extends React.Component {
     offsetTop: React.PropTypes.number,
     offsetVertical: React.PropTypes.number,
     reloadLazyComponent: React.PropTypes.func,
-    style: React.PropTypes.object,
+    style: React.PropTypes.object, // eslint-disable-line react/forbid-prop-types
     threshold: React.PropTypes.number,
     throttle: React.PropTypes.number,
     visibleClassName: React.PropTypes.string,
@@ -144,13 +144,17 @@ export default class Lazy extends React.Component {
     };
   }
 
-  lazyLoadHandler() {
+  lazyLoadHandler(e) {
     if (!this.state.visible) {
       const offset = this.getOffset();
       if (!this.node) {
         return;
       }
       const eventNode = this.getEventNode();
+      const isInviewport = inViewport(this.node, eventNode, offset);
+      if ((!e || (e.type !== 'resize' && e.type !== 'scroll')) && !isInviewport) {
+        return;
+      }
       if (this.node && eventNode && inViewport(this.node, eventNode, offset)) {
         this.detachListeners();
         setImmediate(() => {
@@ -171,7 +175,7 @@ export default class Lazy extends React.Component {
                 });
               });
             })
-            .catch(error => {
+            .catch((error) => {
               console.error(error);
             });
         } else {

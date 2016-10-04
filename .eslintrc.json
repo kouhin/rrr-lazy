@@ -66,10 +66,6 @@
       2,
       "always"
     ],
-    "babel/arrow-parens": [
-      2,
-      "as-needed"
-    ],
     "babel/no-await-in-loop": 2,
     "import/no-extraneous-dependencies": 0,
     "react/jsx-filename-extension": 0
