@@ -7,7 +7,7 @@ const getDisplayName = Component => Component.displayName ||
   Component.name ||
   (typeof Component === 'string' ? Component : 'Component');
 
-export default (options = {}) => Component => {
+export default (options = {}) => (Component) => {
   class LazyDecorated extends React.Component {
     static propTypes = {
       children: React.PropTypes.node,
@@ -19,7 +19,7 @@ export default (options = {}) => Component => {
     }
 
     componentWillUnmount() {
-      Object.keys(LazyDecorated).forEach(k => {
+      Object.keys(LazyDecorated).forEach((k) => {
         if (this.staticKeys.indexOf(k) === -1) {
           delete LazyDecorated[k];
         }
