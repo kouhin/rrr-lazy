@@ -12,11 +12,6 @@
     "import",
     "babel"
   ],
-  "globals": {
-    "webpackIsomorphicTools": true,
-    "__SERVER__": true,
-    "__DEVTOOLS__": true
-  },
   "rules": {
     "no-console": 0,
     "operator-linebreak": [
@@ -61,10 +56,6 @@
         "ignoreCase": true,
         "callbacksLast": true
       }
-    ],
-    "babel/object-curly-spacing": [
-      2,
-      "always"
     ],
     "babel/no-await-in-loop": 2,
     "import/no-extraneous-dependencies": 0,

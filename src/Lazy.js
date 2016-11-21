@@ -66,7 +66,7 @@ export default class Lazy extends React.Component {
       props.elementType,
       {
         ref: node => (this.node = node),
-      }
+      },
     );
 
     if (props.throttle > 0) {
@@ -221,7 +221,7 @@ export default class Lazy extends React.Component {
       throttle,
       visibleClassName,
       onContentVisible,
-      ...restProps,
+      ...restProps
     } = this.props;
     /* eslint-enable no-unused-vars */
 
@@ -242,7 +242,7 @@ export default class Lazy extends React.Component {
         {
           ...placeHolderProps,
           style: initStyle || style,
-        }
+        },
       );
     }
 
@@ -269,7 +269,7 @@ export default class Lazy extends React.Component {
           ...placeHolderProps,
           style: this.state.mounted ? style : initStyle,
         },
-        child
+        child,
       );
     }
     return child;
