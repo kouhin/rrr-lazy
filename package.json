@@ -10,7 +10,7 @@
     "build:umd:min": "webpack src/index.js dist/rrr-lazy.min.js --config webpack.config.production.js",
     "clean": "rimraf lib dist",
     "lint": "eslint src",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run lint"
   },
   "repository": {
     "type": "git",
