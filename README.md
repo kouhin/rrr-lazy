@@ -10,13 +10,11 @@ A fork of react-lazy-load and add support for react-router, react-router-hook.
 
 ## Notice
 
-This is a fork of [react-lazy-load](https://github.com/loktar00/react-lazy-load).
-
 ## Installation
 rrr-lazy requires **React 0.14 or later.**
 
 ```
-npm install --save rrr-lazy react-router react-router-hook
+npm install --save rrr-lazy
 ```
 
 ## Examples
