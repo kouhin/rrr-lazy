@@ -3,20 +3,18 @@ rrr-lazy
 
 A fork of react-lazy-load and add support for react-router, react-router-hook.
 
-[![build status](https://img.shields.io/travis/kouhin/rrr-lazy.svg?style=flat-square)](https://travis-ci.org/kouhin/rrr-lazy)
+[![CircleCI](https://circleci.com/gh/kouhin/rrr-lazy/tree/develop.svg?style=svg)](https://circleci.com/gh/kouhin/rrr-lazy/tree/develop)
 [![dependency status](https://david-dm.org/kouhin/rrr-lazy.svg?style=flat-square)](https://david-dm.org/kouhin/rrr-lazy)
-
-**NOTICE: rrr-lazy is under heavy development and is not yet ready for production use.**
 
 ## Notice
 
 This is a fork of [react-lazy-load](https://github.com/loktar00/react-lazy-load).
 
-## Installation
+## Installationg
 rrr-lazy requires **React 0.14 or later.**
 
 ```
-npm install --save rrr-lazy react-router react-router-hook
+npm install --save rrr-lazy
 ```
 
 ## Examples
