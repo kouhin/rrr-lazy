@@ -29,7 +29,7 @@ export default (options = {}) => (Component) => {
     render() {
       const {
         children, // eslint-disable-line no-unused-vars
-        ...restProps,
+        ...restProps
       } = this.props;
 
       const reloadLazyComponent = this.props.reloadComponent &&

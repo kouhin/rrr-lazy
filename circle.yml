@@ -1,0 +1,17 @@
+machine:
+  node:
+    version: 7
+dependencies:
+  override:
+    - sudo apt-get install jq
+    - npm install
+test:
+  override:
+    - npm run lint
+deployment:
+  production:
+    branch: master
+    commands:
+      - git tag v`jq -r '.version' package.json`
+      - git push origin --tags
+      - npm publish
