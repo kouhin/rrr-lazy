@@ -14,6 +14,13 @@ export default (options = {}) => (Component) => {
       reloadComponent: React.PropTypes.func,
     };
 
+    static get defaultProps() {
+      return {
+        children: null,
+        reloadComponent: () => null,
+      };
+    }
+
     componentWillMount() {
       this.staticKeys = Object.keys(LazyDecorated);
     }

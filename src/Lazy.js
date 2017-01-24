@@ -3,7 +3,6 @@ import { add, remove } from 'eventlistener';
 import lodashDebounce from 'lodash/debounce';
 import lodashThrottle from 'lodash/throttle';
 import cx from 'classnames';
-import setImmediate from 'async/setImmediate';
 import shallowCompare from 'react-addons-shallow-compare';
 
 import parentScroll from './utils/parentScroll';
@@ -36,6 +35,9 @@ export default class Lazy extends React.Component {
 
   static get defaultProps() {
     return {
+      children: null,
+      className: '',
+      Component: null,
       debounce: false,
       elementType: 'div',
       initStyle: null,
@@ -47,8 +49,10 @@ export default class Lazy extends React.Component {
       offsetRight: 0,
       offsetTop: 0,
       offsetVertical: 0,
+      onContentVisible: () => null,
       reloadLazyComponent: () => null,
       style: null,
+      threshold: 0,
       throttle: 250,
       visibleClassName: 'isVisible',
     };
@@ -88,24 +92,18 @@ export default class Lazy extends React.Component {
   }
 
   componentDidMount() {
-    setImmediate(() => {
-      this.lazyLoadHandler();
-      if (this.lazyLoadHandler.flush) {
-        this.lazyLoadHandler.flush();
-      }
-      setImmediate(() => {
-        add(window, 'resize', this.lazyLoadHandler);
-        add(this.getEventNode(), 'scroll', this.lazyLoadHandler);
-      });
-    });
+    this.lazyLoadHandler();
+    if (this.lazyLoadHandler.flush) {
+      this.lazyLoadHandler.flush();
+    }
+    add(window, 'resize', this.lazyLoadHandler);
+    add(this.getEventNode(), 'scroll', this.lazyLoadHandler);
   }
 
   componentWillReceiveProps() {
-    setImmediate(() => {
-      if (!this.state.visible) {
-        this.lazyLoadHandler();
-      }
-    });
+    if (!this.state.visible) {
+      this.lazyLoadHandler();
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -157,36 +155,30 @@ export default class Lazy extends React.Component {
       }
       if (this.node && eventNode && inViewport(this.node, eventNode, offset)) {
         this.detachListeners();
-        setImmediate(() => {
-          this.setState({ visible: true });
-        });
+        this.setState({ visible: true });
         if (this.props.reloadLazyComponent &&
           typeof this.props.reloadLazyComponent === 'function') {
           Promise.resolve()
             .then(() => this.props.reloadLazyComponent())
             .then(() => {
-              setImmediate(() => {
-                this.setState({ mounted: true }, () => {
-                  if (this.props.onContentVisible) {
-                    setImmediate(() => {
-                      this.props.onContentVisible();
-                    });
-                  }
-                });
+              this.setState({ mounted: true }, () => {
+                if (this.props.onContentVisible) {
+                  setTimeout(() => {
+                    this.props.onContentVisible();
+                  });
+                }
               });
             })
             .catch((error) => {
               console.error(error);
             });
         } else {
-          setImmediate(() => {
-            this.setState({ mounted: true }, () => {
-              if (this.props.onContentVisible) {
-                setImmediate(() => {
-                  this.props.onContentVisible();
-                });
-              }
-            });
+          this.setState({ mounted: true }, () => {
+            if (this.props.onContentVisible) {
+              setTimeout(() => {
+                this.props.onContentVisible();
+              });
+            }
           });
         }
       }
