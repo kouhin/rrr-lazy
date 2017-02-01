@@ -3,14 +3,18 @@ import hoistStatics from 'hoist-non-react-statics';
 
 import Lazy from './Lazy';
 
-const getDisplayName = Component => Component.displayName ||
-  Component.name ||
-  (typeof Component === 'string' ? Component : 'Component');
+const getDisplayName = (Component) => {
+  if (!Component) {
+    return 'Component';
+  }
+  return Component.displayName ||
+    Component.name ||
+    (typeof Component === 'string' ? Component : 'Component');
+};
 
-export default (options = {}) => (Component) => {
+export default (options = {}) => (Component = null) => {
   class LazyDecorated extends React.Component {
     static propTypes = {
-      children: React.PropTypes.node,
       reloadComponent: React.PropTypes.func,
     };
 
@@ -36,18 +40,32 @@ export default (options = {}) => (Component) => {
     render() {
       const {
         children, // eslint-disable-line no-unused-vars
+        getComponent,
         ...restProps
-      } = this.props;
+      } = {
+        ...options,
+        ...this.props,
+      };
 
-      const reloadLazyComponent = this.props.reloadComponent &&
-        typeof this.props.reloadComponent === 'function'
-        ? () => {
-          hoistStatics(LazyDecorated, Component);
-          return this.props.reloadComponent();
-        } : null;
+      const reloadLazyComponent =
+            (!this.props.reloadComponent ||
+             typeof this.props.reloadComponent !== 'function')
+            ? null : () => new Promise((resolve) => {
+              if (!Component && getComponent) {
+                getComponent((c) => {
+                   // eslint-disable-next-line no-param-reassign,no-underscore-dangle
+                  Component = c && c.__esModule ? c.default : c;
+                  resolve(Component);
+                });
+              } else {
+                resolve(Component);
+              }
+            }).then((c) => {
+              hoistStatics(LazyDecorated, c);
+              return this.props.reloadComponent();
+            });
       return (
         <Lazy
-          {...options}
           {...restProps}
           Component={Component}
           reloadLazyComponent={reloadLazyComponent}
