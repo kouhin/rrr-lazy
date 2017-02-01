@@ -5,12 +5,14 @@ import lodashThrottle from 'lodash/throttle';
 import cx from 'classnames';
 import shallowCompare from 'react-addons-shallow-compare';
 
+import { getHistory } from './history';
 import parentScroll from './utils/parentScroll';
 import inViewport from './utils/inViewport';
 
 export default class Lazy extends React.Component {
 
   static propTypes = {
+    autoReset: React.PropTypes.boolean,
     children: React.PropTypes.node,
     className: React.PropTypes.string,
     Component: React.PropTypes.object, // eslint-disable-line react/forbid-prop-types
@@ -26,6 +28,7 @@ export default class Lazy extends React.Component {
     offsetTop: React.PropTypes.number,
     offsetVertical: React.PropTypes.number,
     reloadLazyComponent: React.PropTypes.func,
+    resetLazyComponent: React.PropTypes.func,
     style: React.PropTypes.object, // eslint-disable-line react/forbid-prop-types
     threshold: React.PropTypes.number,
     throttle: React.PropTypes.number,
@@ -35,6 +38,7 @@ export default class Lazy extends React.Component {
 
   static get defaultProps() {
     return {
+      autoReset: false,
       children: null,
       className: '',
       Component: null,
@@ -51,6 +55,7 @@ export default class Lazy extends React.Component {
       offsetVertical: 0,
       onContentVisible: () => null,
       reloadLazyComponent: () => null,
+      resetLazyComponent: () => null,
       style: null,
       threshold: 0,
       throttle: 250,
@@ -66,6 +71,8 @@ export default class Lazy extends React.Component {
     super(props);
 
     this.lazyLoadHandler = this.lazyLoadHandler.bind(this);
+    this.resetState = this.resetState.bind(this);
+    this.history = getHistory();
     this.placeHolder = React.createElement(
       props.elementType,
       {
@@ -89,6 +96,14 @@ export default class Lazy extends React.Component {
       visible: false,
       mounted: false,
     };
+  }
+
+  componentWillMount() {
+    if (this.history && this.props.autoReset) {
+      this.unlisten = this.history.listen(() => {
+        this.resetState();
+      });
+    }
   }
 
   componentDidMount() {
@@ -115,6 +130,9 @@ export default class Lazy extends React.Component {
       this.lazyLoadHandler.cancel();
     }
     this.detachListeners();
+    if (this.unlisten) {
+      this.unlisten();
+    }
   }
 
   getEventNode() {
@@ -140,6 +158,14 @@ export default class Lazy extends React.Component {
       left: offsetLeft || realOffsetHorizontal,
       right: offsetRight || realOffsetHorizontal,
     };
+  }
+
+  resetState() {
+    this.props.resetLazyComponent();
+    this.setState({
+      visible: false,
+      mounted: false,
+    });
   }
 
   lazyLoadHandler(e) {

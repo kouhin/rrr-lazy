@@ -187,7 +187,14 @@ class UserFooter extends React.Component {
 ```
 
 
-## Props
+## API: `Lazy` component
+
+### Props
+
+#### autoReset
+Type: `Boolean` Default: `false`
+
+Auto reset Lazy component when url changed (history must be set by `setHistory`, see below).
 
 #### offset
 Type: `Number|String` Default: `0`
@@ -222,7 +229,7 @@ Type: `Number|String` Default: `offsetVertical`'s value
 The `offsetLeft` option allows you to specify how far to left of the viewport you want to _begin_ displaying your content.
 
 #### offsetRight
-Type: `Number|String` Default: `offsetVertical`'s value
+pType: `Number|String` Default: `offsetVertical`'s value
 
 The `offsetRight` option allows you to specify how far to the right of the viewport you want to _begin_ displaying your content.
 
@@ -273,3 +280,78 @@ A callback function to execute when the content appears on the screen.
 ### Other Props
 
 Other props will be delegated to placeholder.
+
+## API: @lazy
+
+Usage:
+
+``` javascript
+@lazy({
+  style: {
+    height: 720,
+  },
+  onContentVisible: () => console.log('look ma I have been lazyloaded!')
+})
+@routerHooks({
+  fetch: async () => {
+    await fetchData();
+  },
+  defer: async () => {
+    await fetchDeferredData();
+  },
+})
+class MyComponent extends React.Component {
+  render() {
+    return (
+      <div>
+        <img src='http://apod.nasa.gov/apod/image/1502/HDR_MVMQ20Feb2015ouellet1024.jpg' />
+      </div>
+    );
+  }
+}
+```
+
+Or
+
+``` javascript
+const myComponent = @lazy({
+  style: {
+    height: 720,
+  },
+  onContentVisible: () => console.log('look ma I have been lazyloaded!')
+})(MyComponent);
+```
+
+### options
+
+#### getComponent
+
+When the component is null, getComponent will be used to get a component asynchronously.
+
+``` javascript
+const myComponent = @lazy({
+  style: {
+    height: 720,
+  },
+  onContentVisible: () => console.log('look ma I have been lazyloaded!')
+  getComponent: (cb) => {
+    cb(MyComponent);
+  },
+})();
+```
+
+When you use this feature with webpack bundle-loader, the bundle will be loaded lazily.
+
+``` javascript
+const myComponent = @lazy({
+  style: {
+    height: 720,
+  },
+  onContentVisible: () => console.log('look ma I have been lazyloaded!')
+  getComponent: require('bundle-loader?lazy!./MyComponent.js'),
+})();
+```
+
+## API: setHistory
+
+Set [history](https://github.com/ReactTraining/history) instance in order to use `autoReset` feature.
