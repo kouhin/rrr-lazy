@@ -191,6 +191,11 @@ class UserFooter extends React.Component {
 
 ### Props
 
+#### autoReset
+Type: `Boolean` Default: `false`
+
+Auto reset Lazy component when url changed (history must be set by `setHistory`, see below).
+
 #### offset
 Type: `Number|String` Default: `0`
 
@@ -346,3 +351,7 @@ const myComponent = @lazy({
   getComponent: require('bundle-loader?lazy!./MyComponent.js'),
 })();
 ```
+
+## API: setHistory
+
+Set [history](https://github.com/ReactTraining/history) instance in order to use `autoReset` feature.

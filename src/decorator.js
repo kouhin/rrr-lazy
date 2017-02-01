@@ -64,11 +64,22 @@ export default (options = {}) => (Component = null) => {
               hoistStatics(LazyDecorated, c);
               return this.props.reloadComponent();
             });
+      const originStatics = Object.getOwnPropertyNames(LazyDecorated);
+      const resetLazyComponent = () => {
+        const keys = Object.getOwnPropertyNames(LazyDecorated);
+        for (let i = 0, total = keys.length; i < total; i += 1) {
+          const key = keys[i];
+          if (originStatics.indexOf(key) === -1) {
+            delete LazyDecorated[key];
+          }
+        }
+      };
       return (
         <Lazy
           {...restProps}
           Component={Component}
           reloadLazyComponent={reloadLazyComponent}
+          resetLazyComponent={resetLazyComponent}
         />
       );
     }
