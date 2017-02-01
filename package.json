@@ -15,8 +15,8 @@
     "url": "https://github.com/kouhin/rrr-lazy.git"
   },
   "files": [
-    "dist",
-    "lib"
+    "lib",
+    "src"
   ],
   "keywords": [
     "react",
