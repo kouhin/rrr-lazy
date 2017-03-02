@@ -1,14 +1,14 @@
 {
   "name": "rrr-lazy",
-  "version": "0.14.0",
-  "description": "A fork of react-lazy-load and add support for react-router, react-router-hook.",
+  "version": "0.15.0",
+  "description": "Lazy load component with react && react-router && react-router-hook.",
   "main": "./lib/index.js",
   "scripts": {
     "build": "babel src --out-dir lib",
-    "clean": "rimraf lib dist",
+    "clean": "rimraf lib",
     "lint": "eslint src",
-    "test": "npm run lint",
-    "prepare": "npm run build"
+    "prepublish": "npm run clean && npm run test && npm run build",
+    "test": "eslint src"
   },
   "repository": {
     "type": "git",
@@ -28,40 +28,32 @@
     "react-component",
     "reactjs"
   ],
-  "author": [
-    "Bin Hou <houbin217jz@gmail.com> (https://twitter.com/houbin217jz)",
-    "Jason Brown <loktar00@gmail.com> (https://twitter.com/loktar00)"
-  ],
-  "contributors": [
-    "Sergey Laptev <iamsergeylaptev@gmail.com> (https://twitter.com/iamsergeylaptev)"
-  ],
+  "author": "Bin Hou <houbin217jz@gmail.com> (https://twitter.com/houbin217jz)",
   "license": "MIT",
   "devDependencies": {
-    "babel-cli": "^6.22.2",
-    "babel-core": "^6.22.1",
+    "babel-cli": "^6.23.0",
+    "babel-core": "^6.23.1",
     "babel-eslint": "^7.1.1",
-    "babel-loader": "^6.2.10",
-    "babel-plugin-transform-runtime": "^6.22.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-latest": "^6.22.0",
-    "babel-preset-react": "^6.22.0",
+    "babel-preset-react": "^6.23.0",
     "babel-preset-react-optimize": "^1.0.1",
     "babel-preset-stage-0": "^6.22.0",
-    "eslint-config-airbnb-deps": "^14.0.0",
-    "eslint-plugin-babel": "^4.0.1",
+    "eslint-config-airbnb-deps": "^14.1.0",
+    "eslint-plugin-babel": "^4.1.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "rimraf": "^2.5.4"
+    "rimraf": "^2.6.1"
   },
   "dependencies": {
-    "babel-runtime": "^6.22.0",
+    "babel-runtime": "^6.23.0",
     "classnames": "^2.2.5",
-    "eventlistener": "0.0.1",
     "hoist-non-react-statics": "^1.2.0",
-    "lodash": "^4.17.4",
-    "react-addons-shallow-compare": "^15.4.2"
+    "scrollmonitor": "^1.2.3"
   },
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0-0",
-    "react-dom": "^0.14.0 || ^15.0.0-0"
+    "react-dom": "^0.14.0 || ^15.0.0-0",
+    "react-router": "^2.4.0 || ^3.0.0"
   }
 }

@@ -1,14 +1,10 @@
 rrr-lazy
 =========================
 
-A fork of react-lazy-load and add support for react-router, react-router-hook.
+Lazy load component with react && react-router && react-router-hook.
 
 [![CircleCI](https://circleci.com/gh/kouhin/rrr-lazy/tree/develop.svg?style=svg)](https://circleci.com/gh/kouhin/rrr-lazy/tree/develop)
 [![dependency status](https://david-dm.org/kouhin/rrr-lazy.svg?style=flat-square)](https://david-dm.org/kouhin/rrr-lazy)
-
-## Notice
-
-This is a fork of [react-lazy-load](https://github.com/loktar00/react-lazy-load).
 
 ## Installationg
 rrr-lazy requires **React 0.14 or later.**
@@ -192,7 +188,7 @@ class UserFooter extends React.Component {
 ### Props
 
 #### autoReset
-Type: `Boolean` Default: `false`
+Type: `Boolean` Default: `true`
 
 Auto reset Lazy component when url changed (history must be set by `setHistory`, see below).
 
@@ -237,11 +233,6 @@ The `offsetRight` option allows you to specify how far to the right of the viewp
 Type: `Number|String` Default: `250`
 
 The throttle is managed by an internal function that prevents performance issues from continuous firing of `scroll` events. Using a throttle will set a small timeout when the user scrolls and will keep throttling until the user stops. The default is `250` milliseconds.
-
-#### debounce
-Type: `Boolean` Default: `false`
-
-Set `debounce` to `true` to use [debounce](https://lodash.com/docs#debounce) function so that the checking function is only triggered after a user stops scrolling.
 
 ### mode
 Type: `placeholder` | `container` Default: `placeholder`
