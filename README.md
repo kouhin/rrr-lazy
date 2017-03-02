@@ -188,7 +188,7 @@ class UserFooter extends React.Component {
 ### Props
 
 #### autoReset
-Type: `Boolean` Default: `false`
+Type: `Boolean` Default: `true`
 
 Auto reset Lazy component when url changed (history must be set by `setHistory`, see below).
 

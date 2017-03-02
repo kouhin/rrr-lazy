@@ -81,11 +81,13 @@ export default class Lazy extends React.Component {
   }
 
   componentDidMount() {
-    const history = getHistory();
-    if (history && history.listenBefore) {
-      this.unlistenHistory = history.listen(() => {
-        this.resetState();
-      });
+    if (this.props.autoReset) {
+      const history = getHistory();
+      if (history && history.listen) {
+        this.unlistenHistory = history.listen(() => {
+          this.resetState();
+        });
+      }
     }
     this.startWatch();
   }
