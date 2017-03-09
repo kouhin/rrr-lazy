@@ -13,7 +13,7 @@ const Status = {
 export default class Lazy extends React.Component {
 
   static propTypes = {
-    autoReset: React.PropTypes.boolean,
+    autoReset: React.PropTypes.bool,
     children: React.PropTypes.node,
     className: React.PropTypes.string,
     elementType: React.PropTypes.string,
