@@ -119,7 +119,7 @@ export default class Lazy extends React.Component {
   }
 
   startWatch() {
-    if (!this.watcher) {
+    if (!this.watcher && this.node) {
       this.watcher = scrollMonitor.create(this.node, this.getOffsets());
       this.watcher.enterViewport(this.enterViewport);
     }
@@ -142,7 +142,7 @@ export default class Lazy extends React.Component {
     this.setState({
       status: Status.Unload,
     }, () => {
-      this.startWatch();
+      setTimeout(this.startWatch);
     });
   }
 
@@ -155,17 +155,23 @@ export default class Lazy extends React.Component {
       this.setState({ status: Status.Loaded }, this.props.onContentVisible);
       return;
     }
-    Promise.all([
-      new Promise((resolve) => {
+    new Promise((resolve, reject) => {
+      if (this.node) {
         this.setState({ status: Status.Loading }, resolve);
-      }),
-      this.props.reloadLazyComponent(),
-    ])
+      } else {
+        reject('ABORT');
+      }
+    })
+      .then(() => this.props.reloadLazyComponent())
       .then(() => {
-        this.setState({ status: Status.Loaded }, this.props.onContentVisible);
+        if (this.node) {
+          this.setState({ status: Status.Loaded }, this.props.onContentVisible);
+        }
       })
       .catch((error) => {
-        console.error(error);
+        if (error !== 'ABORT') {
+          console.error(error);
+        }
       });
   }
 
