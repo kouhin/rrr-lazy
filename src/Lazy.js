@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import scrollMonitor from 'scrollmonitor';
 
+import formatOffset from './formatOffset';
 import { getHistory } from './history';
 
 const Status = {
@@ -10,22 +11,19 @@ const Status = {
   Loaded: 'loaded',
 };
 
-export default class Lazy extends React.Component {
+export default class Lazy extends React.PureComponent {
 
   static propTypes = {
     autoReset: React.PropTypes.bool,
     children: React.PropTypes.node,
     className: React.PropTypes.string,
-    elementType: React.PropTypes.string,
-    initStyle: React.PropTypes.object, // eslint-disable-line react/forbid-prop-types
     mode: React.PropTypes.oneOf(['container', 'placeholder']),
-    offset: React.PropTypes.number,
-    offsetBottom: React.PropTypes.number,
-    offsetHorizontal: React.PropTypes.number,
-    offsetLeft: React.PropTypes.number,
-    offsetRight: React.PropTypes.number,
-    offsetTop: React.PropTypes.number,
-    offsetVertical: React.PropTypes.number,
+    offset: React.PropTypes.oneOfType([
+      React.PropTypes.number,
+      React.PropTypes.string,
+      React.PropTypes.arrayOf(React.PropTypes.number),
+    ]),
+    placeholder: React.PropTypes.func,
     reloadLazyComponent: React.PropTypes.func,
     resetLazyComponent: React.PropTypes.func,
     style: React.PropTypes.object, // eslint-disable-line react/forbid-prop-types
@@ -38,17 +36,10 @@ export default class Lazy extends React.Component {
       autoReset: true,
       children: null,
       className: '',
-      elementType: 'div',
-      initStyle: null,
       mode: 'placeholder',
       offset: 0,
-      offsetBottom: 0,
-      offsetHorizontal: 0,
-      offsetLeft: 0,
-      offsetRight: 0,
-      offsetTop: 0,
-      offsetVertical: 0,
       onContentVisible: () => null,
+      placeholder: null,
       reloadLazyComponent: () => null,
       resetLazyComponent: () => null,
       style: null,
@@ -63,13 +54,6 @@ export default class Lazy extends React.Component {
     this.startWatch = this.startWatch.bind(this);
     this.stopWatch = this.stopWatch.bind(this);
     this.enterViewport = this.enterViewport.bind(this);
-
-    this.placeHolder = React.createElement(
-      props.elementType,
-      {
-        ref: node => (this.node = node),
-      },
-    );
 
     if (!!props.children && React.Children.count(props.children) > 1) {
       console.warn('[rrr-lazy] Only one child is allowed');
@@ -100,28 +84,14 @@ export default class Lazy extends React.Component {
     }
   }
 
-  getOffsets() {
-    const {
-      offset, offsetVertical, offsetHorizontal,
-      offsetTop, offsetBottom, offsetLeft, offsetRight,
-    } = this.props;
-
-    const realOffsetAll = offset;
-    const realOffsetVertical = offsetVertical || realOffsetAll;
-    const realOffsetHorizontal = offsetHorizontal || realOffsetAll;
-
-    return {
-      top: offsetTop || realOffsetVertical,
-      bottom: offsetBottom || realOffsetVertical,
-      left: offsetLeft || realOffsetHorizontal,
-      right: offsetRight || realOffsetHorizontal,
-    };
-  }
-
   startWatch() {
     if (!this.watcher && this.node) {
-      this.watcher = scrollMonitor.create(this.node, this.getOffsets());
-      this.watcher.enterViewport(this.enterViewport);
+      this.watcher = scrollMonitor.create(this.node, formatOffset(this.props.offset));
+      if (this.watcher.isInViewport) {
+        this.enterViewport();
+      } else {
+        this.watcher.enterViewport(this.enterViewport);
+      }
     }
     return this.watcher;
   }
@@ -156,17 +126,19 @@ export default class Lazy extends React.Component {
       return;
     }
     new Promise((resolve, reject) => {
-      if (this.node) {
-        this.setState({ status: Status.Loading }, resolve);
-      } else {
+      if (!this.node) {
         reject('ABORT');
+        return;
       }
+      this.setState({ status: Status.Loading }, resolve);
     })
-      .then(() => this.props.reloadLazyComponent())
       .then(() => {
-        if (this.node) {
-          this.setState({ status: Status.Loaded }, this.props.onContentVisible);
-        }
+        if (!this.node) return Promise.reject('ABORT');
+        return this.props.reloadLazyComponent();
+      })
+      .then(() => {
+        if (!this.node) return Promise.reject('ABORT');
+        return this.setState({ status: Status.Loaded }, this.props.onContentVisible);
       })
       .catch((error) => {
         if (error !== 'ABORT') {
@@ -175,70 +147,59 @@ export default class Lazy extends React.Component {
       });
   }
 
+  renderPlaceholder(children, status) {
+    if (this.props.placeholder) {
+      return React.cloneElement(
+        this.props.placeholder(status, children),
+        {
+          ref: (node) => { this.node = node; },
+        },
+      );
+    }
+
+    return (
+      <div
+        className={cx(
+          'LazyLoad',
+          this.props.className,
+          status === Status.Unload ? this.props.visibleClassName : null,
+        )}
+        ref={(node) => { this.node = node; }}
+        style={this.props.style}
+      >
+        {children}
+      </div>
+    );
+  }
+
   render() {
     /* eslint-disable no-unused-vars */
     const {
       autoReset,
       children,
       className,
-      elementType,
-      initStyle,
       mode,
       offset,
-      offsetBottom,
-      offsetHorizontal,
-      offsetLeft,
-      offsetRight,
-      offsetTop,
-      offsetVertical,
       reloadLazyComponent,
       resetLazyComponent,
       style,
       visibleClassName,
       onContentVisible,
-      ...restProps
     } = this.props;
     /* eslint-enable no-unused-vars */
-
     const status = this.state.status;
-
     // Unload
     if (status === Status.Unload) {
-      return React.cloneElement(
-        this.placeHolder,
-        {
-          ...restProps,
-          className: cx('LazyLoad', className),
-          style: initStyle || style,
-        },
-      );
+      return this.renderPlaceholder(null, status);
     }
-
     // Loading
     if (status === Status.Loading) {
-      return React.cloneElement(
-        this.placeHolder,
-        {
-          ...restProps,
-          className: cx('LazyLoad', className),
-          style: initStyle,
-        },
-        children === null ? null : React.cloneElement(children, restProps),
+      return this.renderPlaceholder(
+        children,
+        status,
       );
     }
-
     // Loaded
-    if (mode === 'container') {
-      return React.cloneElement(
-        this.placeHolder,
-        {
-          ...restProps,
-          className: cx('LazyLoad', className, visibleClassName),
-          style,
-        },
-        children === null ? null : React.cloneElement(children, restProps),
-      );
-    }
-    return children === null ? null : React.cloneElement(children, restProps);
+    return mode === 'container' ? this.renderPlaceholder(children, status) : children;
   }
 }
