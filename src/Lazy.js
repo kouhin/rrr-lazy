@@ -1,9 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
-import scrollMonitor from 'scrollmonitor';
 
-import formatOffset from './formatOffset';
 import { getHistory } from './history';
+import watchOnce from './watchOnce';
 
 const Status = {
   Unload: 'unload',
@@ -21,7 +20,6 @@ export default class Lazy extends React.PureComponent {
     offset: React.PropTypes.oneOfType([
       React.PropTypes.number,
       React.PropTypes.string,
-      React.PropTypes.arrayOf(React.PropTypes.number),
     ]),
     placeholder: React.PropTypes.func,
     reloadLazyComponent: React.PropTypes.func,
@@ -37,7 +35,7 @@ export default class Lazy extends React.PureComponent {
       children: null,
       className: '',
       mode: 'placeholder',
-      offset: 0,
+      offset: '0px',
       onContentVisible: () => null,
       placeholder: null,
       reloadLazyComponent: () => null,
@@ -85,21 +83,14 @@ export default class Lazy extends React.PureComponent {
   }
 
   startWatch() {
-    if (!this.watcher && this.node) {
-      this.watcher = scrollMonitor.create(this.node, formatOffset(this.props.offset));
-      if (this.watcher.isInViewport) {
-        this.enterViewport();
-      } else {
-        this.watcher.enterViewport(this.enterViewport);
-      }
+    if (this.node) {
+      this.unwatch = watchOnce(this.node, this.props.offset, this.enterViewport);
     }
-    return this.watcher;
   }
 
   stopWatch() {
-    if (this.watcher) {
-      this.watcher.destroy();
-      this.watcher = null;
+    if (this.unwatch) {
+      this.unwatch();
     }
   }
 
@@ -161,8 +152,8 @@ export default class Lazy extends React.PureComponent {
       <div
         className={cx(
           'LazyLoad',
+          status === Status.Unload ? null : this.props.visibleClassName,
           this.props.className,
-          status === Status.Unload ? this.props.visibleClassName : null,
         )}
         ref={(node) => { this.node = node; }}
         style={this.props.style}
