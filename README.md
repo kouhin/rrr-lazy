@@ -206,11 +206,6 @@ Type: `Function` Default: `null`
 
 A function to render placeholder. You can use this property to customize the placeholder. It receives a children and status. The valid value of status is one of `unload|loading|loaded`.
 
-#### throttle
-Type: `Number|String` Default: `250`
-
-The throttle is managed by an internal function that prevents performance issues from continuous firing of `scroll` events. Using a throttle will set a small timeout when the user scrolls and will keep throttling until the user stops. The default is `250` milliseconds.
-
 ### className
 Type: `string`
 
