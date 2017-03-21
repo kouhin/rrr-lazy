@@ -26,15 +26,15 @@ const MyComponent = () => (
   <div>
     Scroll to load images.
     <div className="filler" />
-    <Lazy style={{ height: 762 }} offsetVertical={300}>
+    <Lazy style={{ height: 762 }} offset={300}>
       <img src='http://apod.nasa.gov/apod/image/1502/HDR_MVMQ20Feb2015ouellet1024.jpg' />
     </Lazy>
     <div className="filler" />
-    <Lazy style={{ height: 683 }} offsetTop={200}>
+    <Lazy style={{ height: 683 }} offset="200px 0px 0px 0px">
       <img src='http://apod.nasa.gov/apod/image/1502/2015_02_20_conj_bourque1024.jpg' />
     </Lazy>
     <div className="filler" />
-    <Lazy style={{ height: 480 }} offsetHorizontal={50}>
+    <Lazy style={{ height: 480 }} offset="0px 50px">
       <img src='http://apod.nasa.gov/apod/image/1502/MarsPlume_jaeschke_480.gif' />
     </Lazy>
     <div className="filler" />
@@ -193,46 +193,23 @@ Type: `Boolean` Default: `true`
 Auto reset Lazy component when url changed (history must be set by `setHistory`, see below).
 
 #### offset
-Type: `Number|String` Default: `0`
+Type: `Number|String` Default: `0px`
 
-Aliases: `threshold`
+The `offset` option allows you to specify how far below, above, to the left, and to the right of the viewport you want to _begin_ displaying your content. When `offset` is a string, it must be a DOMString and followed by "%" or "px", e.g. `500px 0px`.
 
-The `offset` option allows you to specify how far below, above, to the left, and to the right of the viewport you want to _begin_ displaying your content. If you specify `0`, your content will be displayed as soon as it is visible in the viewport, if you want to load _1000px_ below or above the viewport, use `1000`.
+This value will be used as rootMargin for IntersectionObserver (See [rootMargin](https://wicg.github.io/IntersectionObserver/#dom-intersectionobserver-rootmargin).
 
-#### offsetVertical
-Type: `Number|String` Default: `offset`'s value
+If you specify a number, such as `100`, then it will be formatted as `100px 0px`.
 
-The `offsetVertical` option allows you to specify how far above and below the viewport you want to _begin_ displaying your content.
+#### placeholder(children, status)
+Type: `Function` Default: `null`
 
-#### offsetHorizontal
-Type: `Number|String` Default: `offset`'s value
+A function to render placeholder. You can use this property to customize the placeholder. It receives a children and status. The valid value of status is one of `unload|loading|loaded`.
 
-The `offsetHorizontal` option allows you to specify how far to the left and right of the viewport you want to _begin_ displaying your contet.
+### className
+Type: `string`
 
-#### offsetTop
-Type: `Number|String` Default: `offsetVertical`'s value
-
-The `offsetTop` option allows you to specify how far above the viewport you want to _begin_ displaying your content.
-
-#### offsetBottom
-Type: `Number|String` Default: `offsetVertical`'s value
-
-The `offsetBottom` option allows you to specify how far below the viewport you want to _begin_ displaying your content.
-
-#### offsetLeft
-Type: `Number|String` Default: `offsetVertical`'s value
-
-The `offsetLeft` option allows you to specify how far to left of the viewport you want to _begin_ displaying your content.
-
-#### offsetRight
-pType: `Number|String` Default: `offsetVertical`'s value
-
-The `offsetRight` option allows you to specify how far to the right of the viewport you want to _begin_ displaying your content.
-
-#### throttle
-Type: `Number|String` Default: `250`
-
-The throttle is managed by an internal function that prevents performance issues from continuous firing of `scroll` events. Using a throttle will set a small timeout when the user scrolls and will keep throttling until the user stops. The default is `250` milliseconds.
+The className of Lazy component.
 
 ### mode
 Type: `placeholder` | `container` Default: `placeholder`
@@ -240,21 +217,6 @@ Type: `placeholder` | `container` Default: `placeholder`
 `placeholder` mode: Once your content is loaded, placeholder will be removed.
 
 `container` mode: placeholder won't be removed and act as a container when your content are loaded.
-
-### elementType
-Type: `string` Default: `div`
-
-A html element that is used for creating placeholder.
-
-### initStyle
-Type: `object` Default: null
-
-`initStyle` overrides the style of placeholder before your content is loaded.
-
-### className
-Type: `string`
-
-The className of Lazy component.
 
 ### visibleClassName
 Type: `string` Default: `isVisible`

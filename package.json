@@ -1,6 +1,6 @@
 {
   "name": "rrr-lazy",
-  "version": "0.16.1",
+  "version": "1.1.0",
   "description": "Lazy load component with react && react-router && react-router-hook.",
   "main": "./lib/index.js",
   "scripts": {
@@ -48,7 +48,7 @@
     "babel-runtime": "^6.23.0",
     "classnames": "^2.2.5",
     "hoist-non-react-statics": "^1.2.0",
-    "scrollmonitor": "^1.2.3"
+    "intersection-observer": "^0.2.1"
   },
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0-0",
