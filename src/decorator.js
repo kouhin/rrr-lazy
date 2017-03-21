@@ -16,14 +16,13 @@ const getDisplayName = (Component, displayName) => {
 };
 
 export default (options = {}) => (Component = null) => {
-  class LazyDecorated extends React.Component {
+  class LazyDecorated extends React.PureComponent {
     static propTypes = {
       reloadComponent: React.PropTypes.func,
     };
 
     static get defaultProps() {
       return {
-        children: null,
         reloadComponent: () => null,
       };
     }
@@ -67,7 +66,10 @@ export default (options = {}) => (Component = null) => {
         if (this.state.Component) {
           hoistStatics(LazyDecorated, this.state.Component);
         }
-        return this.props.reloadComponent();
+        if (typeof this.props.reloadComponent === 'function') {
+          this.props.reloadComponent();
+        }
+        return null;
       });
     }
 
