@@ -14,7 +14,8 @@ if (canUseDOM) {
 const animationFrame = typeof window !== 'undefined'
       ? (window.requestAnimationFrame ||
          window.webkitRequestAnimationFrame ||
-         window.mozRequestAnimationFrame) : setTimeout;
+         window.mozRequestAnimationFrame ||
+         window.setTimeout) : setTimeout;
 
 const observers = {};
 const callbacks = new WeakMap();
