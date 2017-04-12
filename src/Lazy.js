@@ -141,7 +141,7 @@ export default class Lazy extends React.PureComponent {
   renderPlaceholder(children, status) {
     if (this.props.placeholder) {
       return React.cloneElement(
-        this.props.placeholder(status, children),
+        this.props.placeholder(children, status),
         {
           ref: (node) => { this.node = node; },
         },
