@@ -15,6 +15,15 @@ const getDisplayName = (Component, displayName) => {
     (typeof Component === 'string' ? Component : 'Component');
 };
 
+function isPromise(obj) {
+  return obj && typeof obj.then === 'function';
+}
+
+function interopRequireDefault(obj) {
+  // eslint-disable-next-line no-underscore-dangle
+  return obj && obj.__esModule ? obj : { default: obj };
+}
+
 export default (options = {}) => (Component = null) => {
   class LazyDecorated extends React.PureComponent {
     static propTypes = {
@@ -46,18 +55,35 @@ export default (options = {}) => (Component = null) => {
       if (!this.props.reloadComponent || typeof this.props.reloadComponent !== 'function') {
         return null;
       }
-      return new Promise((resolve) => {
-        if (!this.state.Component && options.getComponent) {
-          options.getComponent((c) => {
-            // eslint-disable-next-line no-param-reassign,no-underscore-dangle
-            Component = c && c.__esModule ? c.default : c;
-            resolve(Component);
+      return new Promise((resolve, reject) => {
+        if (this.state.Component || !options.getComponent) {
+          // Component is already loaded
+          resolve();
+        } else if (isPromise(options.getComponent)) {
+          // getComponent is a Promise, e.g. getComponent = import('./module')
+          options.getComponent.then((c) => {
+            resolve(interopRequireDefault(c).default);
           });
-          return;
+        } else if (typeof options.getComponent === 'function') {
+          const componentReturn = options.getComponent((c) => {
+            // getComponent is a lazy bundle,
+            // e.g. getComponent = 'bundle-loader!lazy!./module');
+            resolve(interopRequireDefault(c).default);
+          });
+          if (isPromise(componentReturn)) {
+            // getComponent is a function and returns Promise,
+            // e.g. getComponent = () => import('./module');
+            componentReturn.then((c) => {
+              resolve(interopRequireDefault(c).default);
+            });
+          }
+        } else {
+          reject(new Error('getComponent must be Promise or function'));
         }
-        resolve();
       }).then((c) => {
         if (c && this.state.Component !== c) {
+          // eslint-disable-next-line no-param-reassign
+          Component = c;
           this.setState({
             Component: c,
             element: React.createElement(Component),
