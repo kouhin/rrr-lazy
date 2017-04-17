@@ -293,7 +293,7 @@ const myComponent = @lazy({
 })();
 ```
 
-When you use this feature with webpack bundle-loader, the bundle will be loaded lazily.
+With bundle-loader.
 
 ``` javascript
 const myComponent = @lazy({
@@ -301,7 +301,19 @@ const myComponent = @lazy({
     height: 720,
   },
   onContentVisible: () => console.log('look ma I have been lazyloaded!')
-  getComponent: require('bundle-loader?lazy!./MyComponent.js'),
+  getComponent: require('bundle-loader?lazy!./MyComponent'),
+})();
+```
+
+With webpack 2 import()
+
+``` javascript
+const myComponent = @lazy({
+  style: {
+    height: 720,
+  },
+  onContentVisible: () => console.log('look ma I have been lazyloaded!')
+  getComponent: () => import('./MyComponent'),
 })();
 ```
 
