@@ -26,6 +26,9 @@ function findObserver(offsetString) {
     observer = new IntersectionObserver((entries) => {
       for (let i = 0, len = entries.length; i < len; i += 1) {
         const entry = entries[i];
+        if (entry.intersectionRatio < 1) {
+          return;
+        }
         const element = entry.target;
         const callback = callbacks.get(element);
         if (callback) {
