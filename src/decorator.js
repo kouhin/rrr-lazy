@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import hoistStatics from 'hoist-non-react-statics';
 
 import Lazy from './Lazy';
@@ -27,7 +28,7 @@ function interopRequireDefault(obj) {
 export default (options = {}) => (Component = null) => {
   class LazyDecorated extends React.PureComponent {
     static propTypes = {
-      reloadComponent: React.PropTypes.func,
+      reloadComponent: PropTypes.func,
     };
 
     static get defaultProps() {
