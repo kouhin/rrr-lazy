@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 
 import { getHistory } from './history';
 import watchOnce from './watchOnce';
@@ -13,20 +14,20 @@ const Status = {
 export default class Lazy extends React.PureComponent {
 
   static propTypes = {
-    autoReset: React.PropTypes.bool,
-    children: React.PropTypes.node,
-    className: React.PropTypes.string,
-    mode: React.PropTypes.oneOf(['container', 'placeholder']),
-    offset: React.PropTypes.oneOfType([
-      React.PropTypes.number,
-      React.PropTypes.string,
+    autoReset: PropTypes.bool,
+    children: PropTypes.node,
+    className: PropTypes.string,
+    mode: PropTypes.oneOf(['container', 'placeholder']),
+    offset: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.string,
     ]),
-    placeholder: React.PropTypes.func,
-    reloadLazyComponent: React.PropTypes.func,
-    resetLazyComponent: React.PropTypes.func,
-    style: React.PropTypes.object, // eslint-disable-line react/forbid-prop-types
-    visibleClassName: React.PropTypes.string,
-    onContentVisible: React.PropTypes.func,
+    placeholder: PropTypes.func,
+    reloadLazyComponent: PropTypes.func,
+    resetLazyComponent: PropTypes.func,
+    style: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+    visibleClassName: PropTypes.string,
+    onContentVisible: PropTypes.func,
   };
 
   static get defaultProps() {
