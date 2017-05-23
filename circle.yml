@@ -13,8 +13,10 @@ deployment:
   production:
     branch: master
     commands:
-      - if [ "$(git describe --abbrev=0 --tags)" = "v$(json -f package.json version)" ]; then exit 0; fi
-      - git tag v`json -f package.json version`
-      - git push origin --tags
-      - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
-      - npm publish
+      - >
+        if [ "$(git describe --abbrev=0 --tags)" != "v$(json -f package.json version)" ]; then
+          git tag v`json -f package.json version`;
+          git push origin --tags;
+          echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login;
+          npm publish;
+        fi
