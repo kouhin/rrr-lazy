@@ -1,12 +1,11 @@
 rrr-lazy
 =========================
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/kouhin/rrr-lazy.svg)](https://greenkeeper.io/)
-
 Lazy load component with react && react-router && react-router-hook.
 
 [![CircleCI](https://circleci.com/gh/kouhin/rrr-lazy/tree/master.svg?style=svg)](https://circleci.com/gh/kouhin/rrr-lazy/tree/master)
 [![dependency status](https://david-dm.org/kouhin/rrr-lazy.svg?style=flat-square)](https://david-dm.org/kouhin/rrr-lazy)
+[![Greenkeeper badge](https://badges.greenkeeper.io/kouhin/rrr-lazy.svg)](https://greenkeeper.io/)
 
 ## Installationg
 rrr-lazy requires **React 0.14 or later.**
