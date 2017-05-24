@@ -11,11 +11,8 @@ if (canUseDOM) {
   require('intersection-observer');
 }
 
-const animationFrame = typeof window !== 'undefined'
-      ? (window.requestAnimationFrame ||
-         window.webkitRequestAnimationFrame ||
-         window.mozRequestAnimationFrame ||
-         window.setTimeout) : setTimeout;
+const ric = typeof window !== 'undefined'
+      ? (window.requestIdleCallback || window.setTimeout) : setTimeout;
 
 const observers = {};
 const callbacks = new WeakMap();
@@ -24,18 +21,20 @@ function findObserver(offsetString) {
   let observer = observers[offsetString];
   if (!observer) {
     observer = new IntersectionObserver((entries) => {
+      if (entries.length < 1) {
+        return;
+      }
       for (let i = 0, len = entries.length; i < len; i += 1) {
         const entry = entries[i];
-        if (entry.intersectionRatio < 1) {
-          return;
+        if (entry.isIntersecting || entry.intersectionRatio > 0) {
+          const element = entry.target;
+          const callback = callbacks.get(element);
+          if (callback) {
+            ric(callback);
+            callbacks.delete(element);
+          }
+          observer.unobserve(element);
         }
-        const element = entry.target;
-        const callback = callbacks.get(element);
-        if (callback) {
-          animationFrame(callback);
-          callbacks.delete(element);
-        }
-        observer.unobserve(element);
       }
     }, {
       rootMargin: offsetString,
