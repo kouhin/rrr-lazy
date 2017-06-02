@@ -30,7 +30,6 @@ function findObserver(offsetString) {
         if (entry.isIntersecting === undefined && entry.intersectionRatio === 0) {
           entry.isIntersecting = isIntersecting(null, entry.target, entry.rootBounds);
         }
-        console.info(entry);
         if (entry.isIntersecting || entry.intersectionRatio > 0) {
           const element = entry.target;
           const callback = callbacks.get(element);
