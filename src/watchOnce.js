@@ -1,4 +1,5 @@
 import formatOffset from './formatOffset';
+import isIntersecting from './isIntersecting';
 
 const canUseDOM = !!(
   typeof window !== 'undefined' &&
@@ -26,6 +27,10 @@ function findObserver(offsetString) {
       }
       for (let i = 0, len = entries.length; i < len; i += 1) {
         const entry = entries[i];
+        if (entry.isIntersecting === undefined && entry.intersectionRatio === 0) {
+          entry.isIntersecting = isIntersecting(null, entry.target, entry.rootBounds);
+        }
+        console.info(entry);
         if (entry.isIntersecting || entry.intersectionRatio > 0) {
           const element = entry.target;
           const callback = callbacks.get(element);
