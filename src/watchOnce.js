@@ -12,9 +12,6 @@ if (canUseDOM) {
   require('intersection-observer');
 }
 
-const ric = typeof window !== 'undefined'
-      ? (window.requestIdleCallback || window.setTimeout) : setTimeout;
-
 const observers = {};
 const callbacks = new WeakMap();
 
@@ -34,7 +31,7 @@ function findObserver(offsetString) {
           const element = entry.target;
           const callback = callbacks.get(element);
           if (callback) {
-            ric(callback);
+            setTimeout(callback);
             callbacks.delete(element);
           }
           observer.unobserve(element);

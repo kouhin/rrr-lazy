@@ -12,7 +12,6 @@ const Status = {
 };
 
 export default class Lazy extends React.PureComponent {
-
   static propTypes = {
     autoReset: PropTypes.bool,
     children: PropTypes.node,
