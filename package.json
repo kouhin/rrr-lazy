@@ -1,22 +1,27 @@
 {
   "name": "rrr-lazy",
-  "version": "1.4.0",
+  "version": "2.0.0-beta.1",
   "description": "Lazy load component with react && react-router && react-router-hook.",
-  "main": "./lib/index.js",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "jsnext:main": "es/index.js",
   "scripts": {
-    "build": "babel src --out-dir lib",
+    "build": "npm run clean && npm run build:cjs && npm run build:es",
+    "build:cjs": "BABEL_ENV=cjs babel src --out-dir lib",
+    "build:es": "BABEL_ENV=es babel src --out-dir es",
     "clean": "rimraf lib",
-    "lint": "eslint src",
-    "prepare": "npm run clean && npm run test && npm run build",
-    "test": "eslint src"
+    "lint": "eslint *.md src test --ext .js --ext .md",
+    "prepare": "npm run clean && npm run lint && npm test && npm run build",
+    "test": "npm run lint"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/kouhin/rrr-lazy.git"
   },
   "files": [
-    "lib",
-    "src"
+    "src",
+    "es",
+    "lib"
   ],
   "keywords": [
     "react",
@@ -31,30 +36,28 @@
   "author": "Bin Hou <houbin217jz@gmail.com> (https://twitter.com/houbin217jz)",
   "license": "MIT",
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-eslint": "^7.2.3",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.6.0",
-    "babel-preset-react": "^6.24.1",
-    "babel-preset-stage-0": "^6.24.1",
-    "eslint-config-airbnb-deps": "^15.1.2",
-    "eslint-plugin-babel": "^4.1.2",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
-    "react-router": "^3.0.5",
-    "rimraf": "^2.6.1"
+    "@babel/cli": "^7.0.0-beta.34",
+    "@babel/core": "^7.0.0-beta.34",
+    "@babel/node": "^7.0.0-beta.34",
+    "@babel/polyfill": "^7.0.0-beta.34",
+    "@babel/preset-env": "^7.0.0-beta.34",
+    "@babel/preset-react": "^7.0.0-beta.34",
+    "@babel/preset-stage-1": "^7.0.0-beta.34",
+    "@babel/register": "^7.0.0-beta.34",
+    "babel-eslint": "^8.0.3",
+    "eslint": "^4.13.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-markdown": "^1.0.0-beta.6",
+    "prop-types": "^15.6.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "rimraf": "^2.6.2"
   },
   "dependencies": {
-    "babel-runtime": "^6.26.0",
-    "classnames": "^2.2.5",
-    "hoist-non-react-statics": "^2.3.1",
-    "intersection-observer": "^0.2.1",
-    "prop-types": "^15.5.10"
+    "hoist-non-react-statics": "^2.3.1"
   },
   "peerDependencies": {
-    "react": ">=15",
-    "react-dom": ">=15",
-    "react-router": "^2.4.0 || ^3.0.0"
+    "react": ">=16.2.0",
+    "react-dom": ">=16.2.0"
   }
 }

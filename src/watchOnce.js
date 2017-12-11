@@ -1,16 +1,4 @@
 import formatOffset from './formatOffset';
-import isIntersecting from './isIntersecting';
-
-const canUseDOM = !!(
-  typeof window !== 'undefined' &&
-    window.document &&
-    window.document.createElement
-);
-
-if (canUseDOM) {
-  // eslint-disable-next-line global-require
-  require('intersection-observer');
-}
 
 const observers = {};
 const callbacks = new WeakMap();
@@ -18,28 +6,28 @@ const callbacks = new WeakMap();
 function findObserver(offsetString) {
   let observer = observers[offsetString];
   if (!observer) {
-    observer = new IntersectionObserver((entries) => {
-      if (entries.length < 1) {
-        return;
-      }
-      for (let i = 0, len = entries.length; i < len; i += 1) {
-        const entry = entries[i];
-        if (entry.isIntersecting === undefined && entry.intersectionRatio === 0) {
-          entry.isIntersecting = isIntersecting(null, entry.target, entry.rootBounds);
+    observer = new IntersectionObserver(
+      entries => {
+        if (entries.length < 1) {
+          return;
         }
-        if (entry.isIntersecting || entry.intersectionRatio > 0) {
-          const element = entry.target;
-          const callback = callbacks.get(element);
-          if (callback) {
-            setTimeout(callback);
-            callbacks.delete(element);
+        for (let i = 0, len = entries.length; i < len; i += 1) {
+          const entry = entries[i];
+          if (entry.isIntersecting || entry.intersectionRatio > 0) {
+            const element = entry.target;
+            const callback = callbacks.get(element);
+            if (callback) {
+              callbacks.delete(element);
+              callback();
+            }
+            observer.unobserve(element);
           }
-          observer.unobserve(element);
         }
+      },
+      {
+        rootMargin: offsetString
       }
-    }, {
-      rootMargin: offsetString,
-    });
+    );
     observers[offsetString] = observer;
   }
   return observer;
