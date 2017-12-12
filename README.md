@@ -7,14 +7,18 @@ Lazy load component with react && react-router && react-router-hook.
 [![dependency status](https://david-dm.org/kouhin/rrr-lazy.svg?style=flat-square)](https://david-dm.org/kouhin/rrr-lazy)
 
 ## Installationg
-rrr-lazy requires **React 0.14 or later.**
+rrr-lazy requires **React 16.2.0 or later.**
+
+For npm:
+```
+npm install rrr-lazy
+```
+
+For yarn:
 
 ```
-npm install --save rrr-lazy
+yarn add rrr-lazy
 ```
-
-## Examples
-* [Basic](/examples/basic)
 
 ## Usage
 
@@ -26,24 +30,49 @@ const MyComponent = () => (
   <div>
     Scroll to load images.
     <div className="filler" />
-    <Lazy style={{ height: 762 }} offset={300}>
-      <img src='http://apod.nasa.gov/apod/image/1502/HDR_MVMQ20Feb2015ouellet1024.jpg' />
-    </Lazy>
+    <Lazy
+      offset={300}
+      render={(status) => (
+        <img
+          style={{ height: 762, width: 1024 }}
+          src={ status === 'loaded' ? 'http://apod.nasa.gov/apod/image/1502/HDR_MVMQ20Feb2015ouellet1024.jpg' : `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg"/>')}`}
+        />
+      )}
+    />
     <div className="filler" />
-    <Lazy style={{ height: 683 }} offset="200px 0px 0px 0px">
-      <img src='http://apod.nasa.gov/apod/image/1502/2015_02_20_conj_bourque1024.jpg' />
-    </Lazy>
+    <Lazy
+      offset="200px 0px 0px 0px"
+      render={(status) => (
+        <img
+          style={{ height: 683, width: 1024 }}
+          src={ status === 'loaded' ? 'http://apod.nasa.gov/apod/image/1502/2015_02_20_conj_bourque1024.jpg' : `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg"/>')}`}
+        />
+      )}
+    />
     <div className="filler" />
-    <Lazy style={{ height: 480 }} offset="0px 50px">
-      <img src='http://apod.nasa.gov/apod/image/1502/MarsPlume_jaeschke_480.gif' />
-    </Lazy>
+    <Lazy
+      offset="0px 50px"
+      render={(status) => (
+        <img
+          style={{ height: 480, width: 480 }}
+          src={ status === 'loaded' ? 'http://apod.nasa.gov/apod/image/1502/MarsPlume_jaeschke_480.gif' : `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg"/>')}`}
+        />
+      )}
+    />
     <div className="filler" />
     <Lazy
       style={{ height: 720 }}
-      onContentVisible={() => console.log('look ma I have been lazyloaded!')}
-    >
-      <img src='http://apod.nasa.gov/apod/image/1502/ToadSky_Lane_1080_annotated.jpg' />
-    </Lazy>
+      onLoading={async () => console.log('Loading!')}
+      onLoaded={() => console.log('Loaded!')}
+      onUnload={() => console.log('Unload!')}
+      onError={() => console.log('Error!')}
+      render={(status) => (
+        <img
+          style={{ height: 480, width: 480 }}
+          src={ status === 'loaded' ? 'http://apod.nasa.gov/apod/image/1502/ToadSky_Lane_1080_annotated.jpg' : `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg"/>')}`}
+        />
+      )}
+    />
     <div className="filler" />
   </div>
 );
@@ -51,16 +80,22 @@ const MyComponent = () => (
 
 It also provides a decorator for better support for lazy data loading with react-router, react-router-hook.
 
-```javascript
+```jsx
 import React from 'react';
-improt { lazy } from 'rrr-lazy';
+import { lazy } from 'rrr-lazy';
 import { routerHooks } from 'react-router-hook';
 
 @lazy({
-  style: {
-    height: 720,
+  render: (status, props, Component) => {
+    if (status === 'unload') {
+      return <div style={{ height: 720 }}>Unload</div>;
+    } else if (status === 'loading') {
+      return <div style={{ height: 720 }}>Loading</div>;
+    } else {
+      return <Component {...props} />;
+    }
   },
-  onContentVisible: () => console.log('look ma I have been lazyloaded!')
+  onLoaded: () => console.log('look ma I have been lazyloaded!')
 })
 @routerHooks({
   fetch: async () => {
@@ -83,7 +118,7 @@ class MyComponent extends React.Component {
 
 It's very useful when you want to specify the lazy loading component in react-router configuration.
 
-```javascript
+```jsx
 import { browserHistory, Router } from 'react-router';
 import { useRouterHook, routerHooks } from 'react-router-hook';
 
@@ -113,14 +148,25 @@ const routerHookMiddleware = useRouterHook({
   onCompleted,
   onError,
 });
-
 ReactDOM.render((
   <Router
     history={browserHistory}
     render={applyRouterMiddleware(routerHookMiddleware)}
   >
     <Route path="/" component={App}>
-      <Route path="users" components={{main: Users, footer: lazy({ style: { height: 500 } })(UserFooter)}} />
+      <Route
+        path="users"
+        components={{
+          main: Users,
+          footer: lazy({ render: (status, props, Component) => (
+            status === 'loaded' ? (
+              <div style={{ height: 500 }} />
+            ) : (
+              <Component {...props} />
+            )
+          )})(UserFooter)
+        }}
+      />
     </Route>
   </Router>
 ), node)
@@ -201,50 +247,23 @@ This value will be used as rootMargin for IntersectionObserver (See [rootMargin]
 
 If you specify a number, such as `100`, then it will be formatted as `100px 0px`.
 
-#### placeholder(children, status)
-Type: `Function` Default: `null`
+#### render()
 
-A function to render placeholder. You can use this property to customize the placeholder. It receives a children and status. The valid value of status is one of `unload|loading|loaded`.
+#### triggerStyle
 
-### className
-Type: `string`
+#### onError()
 
-The className of Lazy component.
+#### onLoaded()
 
-### mode
-Type: `placeholder` | `container` Default: `placeholder`
+#### onLoading()
 
-`placeholder` mode: Once your content is loaded, placeholder will be removed.
-
-`container` mode: placeholder won't be removed and act as a container when your content are loaded.
-
-### visibleClassName
-Type: `string` Default: `isVisible`
-
-The className that used in **container** mode when component is visible.
-
-The className of placeholder that used in **container** mode during deferred by react-router-hook.
-
-### onContentVisible
-Type `Function`
-
-A callback function to execute when the content appears on the screen.
-
-### Other Props
-
-Other props will be delegated to placeholder.
+#### onUnload()
 
 ## API: @lazy
 
 Usage:
 
 ``` javascript
-@lazy({
-  style: {
-    height: 720,
-  },
-  onContentVisible: () => console.log('look ma I have been lazyloaded!')
-})
 @routerHooks({
   fetch: async () => {
     await fetchData();
@@ -252,6 +271,18 @@ Usage:
   defer: async () => {
     await fetchDeferredData();
   },
+})
+@lazy({
+  render: (status, props, Component) => {
+    if (status === 'unload') {
+      return <div style={{ height: 720 }}>Unload</div>;
+    } else if (status === 'loading') {
+      return <div style={{ height: 720 }}>Loading</div>;
+    } else {
+      return <Component {...props} />;
+    }
+  },
+  onLoaded: () => console.log('look ma I have been lazyloaded!')
 })
 class MyComponent extends React.Component {
   render() {
@@ -267,11 +298,26 @@ class MyComponent extends React.Component {
 Or
 
 ``` javascript
-const myComponent = @lazy({
-  style: {
-    height: 720,
+class MyComponent extends React.Component {
+  render() {
+    return (
+      <div>
+        <img src='http://apod.nasa.gov/apod/image/1502/HDR_MVMQ20Feb2015ouellet1024.jpg' />
+      </div>
+    );
+  }
+}
+const myComponent = lazy({
+  render: (status, props, Component) => {
+    if (status === 'unload') {
+      return <div style={{ height: 720 }}>Unload</div>;
+    } else if (status === 'loading') {
+      return <div style={{ height: 720 }}>Loading</div>;
+    } else {
+      return <Component {...props} />;
+    }
   },
-  onContentVisible: () => console.log('look ma I have been lazyloaded!')
+  onLoaded: () => console.log('look ma I have been lazyloaded!')
 })(MyComponent);
 ```
 
@@ -279,43 +325,25 @@ const myComponent = @lazy({
 
 #### getComponent
 
-When the component is null, getComponent will be used to get a component asynchronously.
-
-``` javascript
-const myComponent = @lazy({
-  style: {
-    height: 720,
-  },
-  onContentVisible: () => console.log('look ma I have been lazyloaded!')
-  getComponent: (cb) => {
-    cb(MyComponent);
-  },
-})();
-```
-
-With bundle-loader.
-
-``` javascript
-const myComponent = @lazy({
-  style: {
-    height: 720,
-  },
-  onContentVisible: () => console.log('look ma I have been lazyloaded!')
-  getComponent: require('bundle-loader?lazy!./MyComponent'),
-})();
-```
-
 With webpack 2 import()
 
 ``` javascript
-const myComponent = @lazy({
-  style: {
-    height: 720,
+const myComponent = lazy({
+  render: (status, props, Component) => {
+    if (status === 'unload') {
+      return <div style={{ height: 720 }}>Unload</div>;
+    } else if (status === 'loading') {
+      return <div style={{ height: 720 }}>Loading</div>;
+    } else {
+      return <Component {...props} />;
+    }
   },
-  onContentVisible: () => console.log('look ma I have been lazyloaded!')
+  onLoaded: () => console.log('look ma I have been lazyloaded!'),
   getComponent: () => import('./MyComponent'),
 })();
 ```
+
+#### render: function(status, props, Component)
 
 ## API: setHistory
 

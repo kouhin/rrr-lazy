@@ -11,9 +11,11 @@ const getDisplayName = (Component, displayName) => {
   if (!Component) {
     return 'Component';
   }
-  return Component.displayName ||
+  return (
+    Component.displayName ||
     Component.name ||
-    (typeof Component === 'string' ? Component : 'Component');
+    (typeof Component === 'string' ? Component : 'Component')
+  );
 };
 
 function isPromise(obj) {
@@ -25,82 +27,74 @@ function interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
-export default (options = {}) => (Component = null) => {
+export default (options = {}) => (target = null) => {
+  let Component = target;
   class LazyDecorated extends React.PureComponent {
     static propTypes = {
-      reloadComponent: PropTypes.func,
+      reloadComponent: PropTypes.func
     };
 
     static get defaultProps() {
       return {
-        reloadComponent: () => null,
+        reloadComponent: () => null
       };
     }
 
     constructor(props) {
       super(props);
-      this.reloadLazyComponent = this.reloadLazyComponent.bind(this);
-      this.resetLazyComponent = this.resetLazyComponent.bind(this);
-      this.state = {
-        Component,
-        element: Component ? React.createElement(Component) : null,
-      };
+      this.handleLoading = this.handleLoading.bind(this);
+      this.handleUnload = this.handleUnload.bind(this);
+      this.state = { Component };
       this.originStatics = Object.getOwnPropertyNames(LazyDecorated);
     }
 
     componentWillUnmount() {
-      this.resetLazyComponent();
+      this.handleUnload();
     }
 
-    reloadLazyComponent() {
-      if (!this.props.reloadComponent || typeof this.props.reloadComponent !== 'function') {
+    handleLoading() {
+      if (
+        !this.props.reloadComponent ||
+        typeof this.props.reloadComponent !== 'function'
+      ) {
         return null;
       }
-      return new Promise((resolve, reject) => {
-        if (this.state.Component || !options.getComponent) {
-          // Component is already loaded
-          resolve();
-        } else if (isPromise(options.getComponent)) {
-          // getComponent is a Promise, e.g. getComponent = import('./module')
-          options.getComponent.then((c) => {
-            resolve(interopRequireDefault(c).default);
-          });
-        } else if (typeof options.getComponent === 'function') {
-          const componentReturn = options.getComponent((c) => {
-            // getComponent is a lazy bundle,
-            // e.g. getComponent = 'bundle-loader!lazy!./module');
-            resolve(interopRequireDefault(c).default);
-          });
-          if (isPromise(componentReturn)) {
-            // getComponent is a function and returns Promise,
-            // e.g. getComponent = () => import('./module');
-            componentReturn.then((c) => {
-              resolve(interopRequireDefault(c).default);
-            });
-          }
-        } else {
-          reject(new Error('getComponent must be Promise or function'));
-        }
-      }).then((c) => {
-        if (c && this.state.Component !== c) {
-          // eslint-disable-next-line no-param-reassign
-          Component = c;
-          this.setState({
-            Component: c,
-            element: React.createElement(Component),
-          });
-        }
-        if (this.state.Component) {
-          hoistStatics(LazyDecorated, this.state.Component);
-        }
-        if (typeof this.props.reloadComponent === 'function') {
-          this.props.reloadComponent();
-        }
-        return null;
-      });
+      return Promise.all([
+        options.onLoading ? options.onLoading() : Promise.resolve(),
+        Promise.resolve()
+          .then(() => {
+            if (this.state.Component || !options.getComponent) {
+              // Component is already loaded
+              return null;
+            } else if (isPromise(options.getComponent)) {
+              // getComponent is a Promise, e.g. getComponent = import('./module')
+              return options.getComponent;
+            } else if (typeof options.getComponent === 'function') {
+              // getComponent is a function and returns Promise,
+              // e.g. getComponent = () => import('./module');
+              return options.getComponent();
+            } else {
+              reject(new Error('getComponent must be Promise or function'));
+            }
+          })
+          .then(c => {
+            const component = interopRequireDefault(c).default;
+            if (component && this.state.Component !== component) {
+              Component = component;
+              this.setState({ Component: component });
+            }
+            if (this.state.Component) {
+              hoistStatics(LazyDecorated, this.state.Component);
+            }
+            if (typeof this.props.reloadComponent === 'function') {
+              return this.props.reloadComponent();
+            }
+            return null;
+          })
+      ]);
     }
 
-    resetLazyComponent() {
+    handleUnload() {
       const keys = Object.getOwnPropertyNames(LazyDecorated);
       for (let i = 0, total = keys.length; i < total; i += 1) {
         const key = keys[i];
@@ -108,32 +102,37 @@ export default (options = {}) => (Component = null) => {
           delete LazyDecorated[key];
         }
       }
+      return options.onUnload ? options.onUnload() : Promise.resolve();
     }
 
     render() {
       const {
-        displayName, // eslint-disable-line no-unused-vars
-        getComponent, // eslint-disable-line no-unused-vars
+        displayName,
+        getComponent,
+        render: renderElement,
+        reloadComponent,
         ...restOptions
       } = {
         ...options,
+        ...this.props
       };
 
       return (
         <Lazy
           {...restOptions}
-          reloadLazyComponent={this.reloadLazyComponent}
-          resetLazyComponent={this.resetLazyComponent}
-        >
-          {
-            this.state.element
-              ? React.cloneElement(this.state.element, this.props) : null
+          render={(status, props) =>
+            renderElement(status, props, this.state.Component)
           }
-        </Lazy>
+          onLoading={this.handleLoading}
+          onUnload={this.handleUnload}
+        />
       );
     }
   }
-  LazyDecorated.displayName = `@lazy(${getDisplayName(Component, options.displayName)})`;
+  LazyDecorated.displayName = `@lazy(${getDisplayName(
+    Component,
+    options.displayName
+  )})`;
   LazyDecorated.WrappedComponent = Component;
   return LazyDecorated;
 };
