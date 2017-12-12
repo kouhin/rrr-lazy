@@ -23,7 +23,7 @@ jobs:
       - image: circleci/node:8-browsers
     steps:
       - checkout
-      - run: npm install -g json
+      - run: sudo npm install json -g
       - run: npm install
       - run:
           name: Publish
@@ -39,7 +39,7 @@ jobs:
       - image: circleci/node:8-browsers
     steps:
       - checkout
-      - run: npm install -g json
+      - run: sudo npm install -g json
       - run: npm install
       - run:
           name: Publish
@@ -62,10 +62,23 @@ workflows:
           filters:
             branches:
               only: master
-      - prerelease:
+      - approval-release:
+          type: approval
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - release:
+          requires:
+            - approval-release
+      - approval-prerelease:
           type: approval
           requires:
             - test
           filters:
             branches:
               only: next
+      - prerelease:
+          requires:
+            - approval-prerelease
