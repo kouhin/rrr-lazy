@@ -31,7 +31,7 @@ const MyComponent = () => (
     Scroll to load images.
     <div className="filler" />
     <Lazy
-      offset={300}
+      rootMargin="300px 0 300px 0"
       render={(status) => (
         <img
           style={{ height: 762, width: 1024 }}
@@ -41,7 +41,7 @@ const MyComponent = () => (
     />
     <div className="filler" />
     <Lazy
-      offset="200px 0px 0px 0px"
+      rootMargin="200px 0px 0px 0px"
       render={(status) => (
         <img
           style={{ height: 683, width: 1024 }}
@@ -51,7 +51,7 @@ const MyComponent = () => (
     />
     <div className="filler" />
     <Lazy
-      offset="0px 50px"
+      rootMargin="50px 0 50px 0"
       render={(status) => (
         <img
           style={{ height: 480, width: 480 }}
@@ -238,16 +238,17 @@ Type: `Boolean` Default: `true`
 
 Auto reset Lazy component when url changed (history must be set by `setHistory`, see below).
 
-#### offset
-Type: `Number|String` Default: `0px`
+#### root
+Type: `String|HTMLElement` Default: `null`
 
-The `offset` option allows you to specify how far below, above, to the left, and to the right of the viewport you want to _begin_ displaying your content. When `offset` is a string, it must be a DOMString and followed by "%" or "px", e.g. `500px 0px`.
+This value will be used as root for IntersectionObserver (See [root](https://www.w3.org/TR/intersection-observer/#dom-intersectionobserver-root).
 
-This value will be used as rootMargin for IntersectionObserver (See [rootMargin](https://wicg.github.io/IntersectionObserver/#dom-intersectionobserver-rootmargin).
+#### rootMargin
+Type: `String` Default: `0px 0px 0px 0px`
 
-If you specify a number, such as `100`, then it will be formatted as `100px 0px`.
+This value will be used as rootMargin for IntersectionObserver (See [rootMargin](https://www.w3.org/TR/intersection-observer/#dom-intersectionobserverinit-rootmargin).
 
-#### render()
+#### render(status, props)
 
 #### triggerStyle
 
