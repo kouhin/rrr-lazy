@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { getHistory } from './history';
-import watchOnce from './watchOnce';
+import { createIntersectionListener } from './intersectionListener';
 
 const Status = {
   Unload: 'unload',
@@ -15,6 +15,14 @@ export default class Lazy extends React.PureComponent {
     autoReset: PropTypes.bool,
     offset: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     render: PropTypes.func,
+    root: PropTypes.oneOfType(
+      [PropTypes.string].concat(
+        typeof HTMLElement === 'undefined'
+          ? []
+          : PropTypes.instanceOf(HTMLElement)
+      )
+    ),
+    rootMargin: PropTypes.string,
     triggerStyle: PropTypes.object, // eslint-disable-line
     onError: PropTypes.func,
     onLoaded: PropTypes.func,
@@ -25,7 +33,8 @@ export default class Lazy extends React.PureComponent {
   static get defaultProps() {
     return {
       autoReset: true,
-      offset: '0px',
+      root: null,
+      rootMargin: '0px 0px 0px 0px',
       render: null,
       triggerStyle: null,
       onError: () => null,
@@ -38,8 +47,8 @@ export default class Lazy extends React.PureComponent {
   constructor(props) {
     super(props);
     this.resetState = this.resetState.bind(this);
-    this.startWatch = this.startWatch.bind(this);
-    this.stopWatch = this.stopWatch.bind(this);
+    this.startListen = this.startListen.bind(this);
+    this.stopListen = this.stopListen.bind(this);
     this.enterViewport = this.enterViewport.bind(this);
     this.state = {
       status: Status.Unload
@@ -55,30 +64,46 @@ export default class Lazy extends React.PureComponent {
         });
       }
     }
-    this.startWatch();
+    this.startListen();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.status === Status.Unload) {
+      this.startListen();
+    }
   }
 
   componentWillUnmount() {
-    this.stopWatch();
+    this.stopListen();
     if (this.unlistenHistory) {
       this.unlistenHistory();
       this.unlistenHistory = null;
     }
   }
 
-  startWatch() {
-    if (this.node) {
-      this.unwatch = watchOnce(
-        this.node,
-        this.props.offset,
-        this.enterViewport
-      );
+  startListen() {
+    if (!Lazy.intersectionListener) {
+      const { root, rootMargin } = this.props;
+      Lazy.intersectionListener = createIntersectionListener({
+        root: typeof root === 'string' ? document.querySelector(root) : root,
+        rootMargin
+      });
+    }
+    this.stopListen();
+    if (this.node && !this.unlisten) {
+      this.unlisten = Lazy.intersectionListener.listen(this.node, entry => {
+        if (entry.isIntersecting || entry.intersectionRatio > 0) {
+          this.stopListen();
+          this.enterViewport();
+        }
+      });
     }
   }
 
-  stopWatch() {
-    if (this.unwatch) {
-      this.unwatch();
+  stopListen() {
+    if (this.unlisten) {
+      this.unlisten();
+      this.unlisten = null;
     }
   }
 
@@ -86,13 +111,12 @@ export default class Lazy extends React.PureComponent {
     if (this.state.status === Status.Unload) {
       return;
     }
-    this.stopWatch();
+    this.stopListen();
     this.props.onUnload();
-    this.setState({ status: Status.Unload }, this.startWatch);
+    this.setState({ status: Status.Unload });
   }
 
   enterViewport() {
-    this.stopWatch();
     if (!this.node || this.state.status !== Status.Unload) {
       return null;
     }
@@ -117,7 +141,8 @@ export default class Lazy extends React.PureComponent {
   render() {
     const {
       autoReset,
-      offset,
+      root,
+      rootMargin,
       render,
       triggerStyle,
       onLoaded,
