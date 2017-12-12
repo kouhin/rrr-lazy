@@ -1,6 +1,6 @@
 {
   "name": "rrr-lazy",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "description": "Lazy load component with react && react-router && react-router-hook.",
   "main": "lib/index.js",
   "module": "es/index.js",
