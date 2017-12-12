@@ -34,7 +34,7 @@ export default class Lazy extends React.PureComponent {
     return {
       autoReset: true,
       root: null,
-      rootMargin: '0px 0px 0px 0px',
+      rootMargin: null,
       render: null,
       triggerStyle: null,
       onError: () => null,
@@ -84,10 +84,14 @@ export default class Lazy extends React.PureComponent {
   startListen() {
     if (!Lazy.intersectionListener) {
       const { root, rootMargin } = this.props;
-      Lazy.intersectionListener = createIntersectionListener({
-        root: typeof root === 'string' ? document.querySelector(root) : root,
-        rootMargin
-      });
+      const opts = {};
+      if (root) {
+        opts.root = typeof root === 'string' ? document.querySelector(root) : root;
+      }
+      if (rootMargin) {
+        opts.rootMargin = rootMargin;
+      }
+      Lazy.intersectionListener = createIntersectionListener(opts);
     }
     this.stopListen();
     if (this.node && !this.unlisten) {

@@ -244,7 +244,7 @@ Type: `String|HTMLElement` Default: `null`
 This value will be used as root for IntersectionObserver (See [root](https://www.w3.org/TR/intersection-observer/#dom-intersectionobserver-root).
 
 #### rootMargin
-Type: `String` Default: `0px 0px 0px 0px`
+Type: `String` Default: `null`
 
 This value will be used as rootMargin for IntersectionObserver (See [rootMargin](https://www.w3.org/TR/intersection-observer/#dom-intersectionobserverinit-rootmargin).
 
