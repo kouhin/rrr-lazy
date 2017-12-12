@@ -1,0 +1,71 @@
+version: 2
+jobs:
+  test:
+    docker:
+      - image: circleci/node:8-browsers
+    steps:
+      - checkout
+      - run: sudo npm install json -g
+      - run: json -f package.json -e 'this.version="0.0.0"' > .package.json
+      - restore_cache:
+          keys:
+            - node-cache-{{ checksum ".package.json" }}-{{ .Branch }}
+            - node-cache-{{ checksum ".package.json" }}
+            - node-cache
+      - run: npm install
+      - run: npm test
+      - save_cache:
+          key: node-cache-{{ checksum ".package.json" }}-{{ .Branch }}
+          paths:
+            - node_modules
+  release:
+    docker:
+      - image: circleci/node:8-browsers
+    steps:
+      - checkout
+      - run: npm install -g json
+      - run: npm install
+      - run:
+          name: Publish
+          command: |
+            if [ "$(git describe --abbrev=0 --tags)" != "v$(json -f package.json version)" ]; then
+              git tag v`json -f package.json version`;
+              git push origin --tags;
+              echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+              npm publish;
+            fi
+  prerelease:
+    docker:
+      - image: circleci/node:8-browsers
+    steps:
+      - checkout
+      - run: npm install -g json
+      - run: npm install
+      - run:
+          name: Publish
+          command: |
+            if [ "$(git describe --abbrev=0 --tags)" != "v$(json -f package.json version)" ]; then
+              git tag v`json -f package.json version`;
+              git push origin --tags;
+              echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+              npm publish --tag next;
+            fi
+workflows:
+  version: 2
+  build_and_publish:
+    jobs:
+      - test
+      - release:
+          type: approval
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - prerelease:
+          type: approval
+          requires:
+            - test
+          filters:
+            branches:
+              only: next
