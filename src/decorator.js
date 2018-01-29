@@ -73,9 +73,8 @@ export default (options = {}) => (target = null) => {
               // getComponent is a function and returns Promise,
               // e.g. getComponent = () => import('./module');
               return options.getComponent();
-            } else {
-              reject(new Error('getComponent must be Promise or function'));
             }
+            throw new Error('getComponent must be Promise or function');
           })
           .then(c => {
             const component = interopRequireDefault(c).default;

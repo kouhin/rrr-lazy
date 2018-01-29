@@ -25,7 +25,7 @@ class IntersectionListener {
 
 const observerPool = new WeakMap();
 
-export function createIntersectionListener(options) {
+export default function createIntersectionListener(options) {
   const {
     root = typeof window === 'undefined' ? Object : window,
     rootMargin = '',

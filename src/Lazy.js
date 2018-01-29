@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { getHistory } from './history';
-import { createIntersectionListener } from './intersectionListener';
+import createIntersectionListener from './intersectionListener';
 
 const Status = {
   Unload: 'unload',
@@ -13,7 +13,6 @@ const Status = {
 export default class Lazy extends React.PureComponent {
   static propTypes = {
     autoReset: PropTypes.bool,
-    offset: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     render: PropTypes.func,
     root: PropTypes.oneOfType(
       [PropTypes.string].concat(
@@ -68,7 +67,10 @@ export default class Lazy extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.status === Status.Unload) {
+    if (
+      this.state.status !== prevState.status &&
+      this.state.status === Status.Unload
+    ) {
       this.startListen();
     }
   }
@@ -86,7 +88,8 @@ export default class Lazy extends React.PureComponent {
       const { root, rootMargin } = this.props;
       const opts = {};
       if (root) {
-        opts.root = typeof root === 'string' ? document.querySelector(root) : root;
+        opts.root =
+          typeof root === 'string' ? document.querySelector(root) : root;
       }
       if (rootMargin) {
         opts.rootMargin = rootMargin;

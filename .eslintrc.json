@@ -1,6 +1,7 @@
 {
   "parser": "babel-eslint",
   "extends": [
+    "airbnb",
     "prettier"
   ],
   "parserOptions": {
@@ -11,9 +12,13 @@
   },
   "env": {
     "es6": true,
-    "node": true
+    "node": true,
+    "browser": true
   },
   "plugins": [
     "markdown"
-  ]
+  ],
+  "rules": {
+    "react/jsx-filename-extension": 0
+  }
 }
