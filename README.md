@@ -20,7 +20,11 @@ For yarn:
 yarn add rrr-lazy
 ```
 
+IntersectionObserver is required by this library. You can use this polyfill for old browsers https://github.com/w3c/IntersectionObserver/tree/master/polyfill
+
 ## Usage
+
+### Use as a common lazy component
 
 ```javascript
 import React from 'react';
@@ -28,55 +32,94 @@ import { Lazy } from 'rrr-lazy';
 
 const MyComponent = () => (
   <div>
-    Scroll to load images.
-    <div className="filler" />
     <Lazy
       rootMargin="300px 0 300px 0"
       render={(status) => (
-        <img
-          style={{ height: 762, width: 1024 }}
-          src={ status === 'loaded' ? 'http://apod.nasa.gov/apod/image/1502/HDR_MVMQ20Feb2015ouellet1024.jpg' : `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg"/>')}`}
-        />
+        if (status === 'unload') {
+          return <div>Unload</div>
+        }
+        if (status === 'loading') {
+          return <div>Loading</div>
+        }
+        if (status === 'loaded') {
+          return (
+            <img
+              style={{ height: 762, width: 1024 }}
+              src={ status === 'loaded' ? 'http://apod.nasa.gov/apod/image/1502/HDR_MVMQ20Feb2015ouellet1024.jpg' : `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg"/>')}`}
+            />
+          );
+        }
+        throw new Error('Unknown status');
       )}
     />
-    <div className="filler" />
-    <Lazy
-      rootMargin="200px 0px 0px 0px"
-      render={(status) => (
-        <img
-          style={{ height: 683, width: 1024 }}
-          src={ status === 'loaded' ? 'http://apod.nasa.gov/apod/image/1502/2015_02_20_conj_bourque1024.jpg' : `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg"/>')}`}
-        />
-      )}
-    />
-    <div className="filler" />
-    <Lazy
-      rootMargin="50px 0 50px 0"
-      render={(status) => (
-        <img
-          style={{ height: 480, width: 480 }}
-          src={ status === 'loaded' ? 'http://apod.nasa.gov/apod/image/1502/MarsPlume_jaeschke_480.gif' : `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg"/>')}`}
-        />
-      )}
-    />
-    <div className="filler" />
-    <Lazy
-      style={{ height: 720 }}
-      onLoading={async () => console.log('Loading!')}
-      onLoaded={() => console.log('Loaded!')}
-      onUnload={() => console.log('Unload!')}
-      onError={() => console.log('Error!')}
-      render={(status) => (
-        <img
-          style={{ height: 480, width: 480 }}
-          src={ status === 'loaded' ? 'http://apod.nasa.gov/apod/image/1502/ToadSky_Lane_1080_annotated.jpg' : `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg"/>')}`}
-        />
-      )}
-    />
-    <div className="filler" />
   </div>
 );
 ```
+
+### Loading data or do something else with lifecycle hooks
+
+```jsx
+import { lazy } from 'rrr-lazy';
+
+async function onLoading() {
+  // Loading data;
+  // ...
+  return data;
+}
+async function onLoaded() {
+  // Do something on loaded
+  // ...
+  return result;
+}
+
+async function onUnload() {
+  // Do something on unload
+  // ...
+  return result;
+}
+
+async function onError(error) {
+  // Do something on error
+  console.error(error);
+  // ...
+  return result;
+}
+
+class App extends React.Component {
+  render() {
+    // the matched child route components become props in the parent
+    return (
+      <Lazy
+        rootMargin="300px 0 300px 0"
+        render={(status) => (
+          if (status === 'unload') {
+            return <div>Unload</div>
+          }
+          if (status === 'loading') {
+            return <div>Loading</div>
+          }
+          if (status === 'loaded') {
+            return (
+              <img
+                style={{ height: 762, width: 1024 }}
+                src={ status === 'loaded' ? 'http://apod.nasa.gov/apod/image/1502/HDR_MVMQ20Feb2015ouellet1024.jpg' : `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg"/>')}`}
+              />
+            );
+          }
+          throw new Error('Unknown status');
+        )}
+        onLoading={onLoading}
+        onLoaded={onLoaded}
+        onUnload={onUnload}
+        onError={onError}
+    />
+    )
+  }
+}
+```
+
+
+### Use with react-router-hook
 
 It also provides a decorator for better support for lazy data loading with react-router, react-router-hook.
 
@@ -116,127 +159,14 @@ class MyComponent extends React.Component {
 }
 ```
 
-It's very useful when you want to specify the lazy loading component in react-router configuration.
-
-```jsx
-import { browserHistory, Router } from 'react-router';
-import { useRouterHook, routerHooks } from 'react-router-hook';
-
-import { lazy } from 'rrr-lazy';
-
-const locals = {
-  dispatch: store.dispatch, // redux store and dispatch, you can use any locals
-  getState: store.getState,
-};
-
-const onAborted = () => {
-  console.info('aborted');
-};
-const onCompleted = () => {
-  console.info('completed');
-};
-const onError = (error) => {
-  console.error(error);
-};
-
-const routerHookMiddleware = useRouterHook({
-  locals,
-  routerWillEnterHooks: ['fetch'],
-  routerDidEnterHooks: ['defer', 'done'],
-  onAborted,
-  onStarted,
-  onCompleted,
-  onError,
-});
-ReactDOM.render((
-  <Router
-    history={browserHistory}
-    render={applyRouterMiddleware(routerHookMiddleware)}
-  >
-    <Route path="/" component={App}>
-      <Route
-        path="users"
-        components={{
-          main: Users,
-          footer: lazy({ render: (status, props, Component) => (
-            status === 'loaded' ? (
-              <div style={{ height: 500 }} />
-            ) : (
-              <Component {...props} />
-            )
-          )})(UserFooter)
-        }}
-      />
-    </Route>
-  </Router>
-), node)
-class App extends React.Component {
-  render() {
-    // the matched child route components become props in the parent
-    return (
-      <div>
-        <div className="Main">
-          {/* this will either be <Groups> or <Users> */}
-          {this.props.main}
-        </div>
-        <div className="Footer">
-          {/* this will either be <GroupsSidebar> or <UsersSidebar> */}
-          {this.props.footer}
-        </div>
-      </div>
-    )
-  }
-}
-
-@routerHooks({
-  fetch: async () => {
-    await fetchData();
-  },
-  defer: async () => {
-    await fetchDeferredData();
-  },
-})
-class Users extends React.Component {
-  render() {
-    return (
-      <div>
-        {/* if at "/users/123" this will be <Profile> */}
-        {/* UsersSidebar will also get <Profile> as this.props.children.
-            You can pick where it renders */}
-        {this.props.children}
-      </div>
-    )
-  }
-}
-
-@routerHooks({
-  fetch: async () => {
-    await fetchData();
-  },
-  defer: async () => {
-    await fetchDeferredData();
-  },
-})
-class UserFooter extends React.Component {
-  render() {
-    return (
-      <div>
-        UserFooter
-      </div>
-    )
-  }
-}
-```
-
-
-## API: `Lazy` component
+## API: `<Lazy audoReset={true} root rootMargin render triggerStyle onError onLoaded onUnload onUnloaded />`
 
 ### Props
 
 #### autoReset
 Type: `Boolean` Default: `true`
 
-Auto reset Lazy component when url changed (history must be set by `setHistory`, see below).
+Auto reset Lazy component when history changed (history must be set by `setHistory`, see below).
 
 #### root
 Type: `String|HTMLElement` Default: `null`
@@ -248,9 +178,26 @@ Type: `String` Default: `null`
 
 This value will be used as rootMargin for IntersectionObserver (See [rootMargin](https://www.w3.org/TR/intersection-observer/#dom-intersectionobserverinit-rootmargin).
 
-#### render(status, props)
+#### **render(status, props)**
+Type: `Function` **Required**
+
+`status` can be `unload`, `loading`, `loaded`.
+
+`props` are props that passed from `Lazy`. This is designed for `@lazy`, and when you use `<Lazy>` component, you may not need it.
 
 #### triggerStyle
+
+Set the style of trigger. On some old browsers (Chrome 51 - 57 ?) IntersectionObserver may not work properly. You can use `triggerStyle` to do the trick.
+
+Example:
+
+``` javascript
+<Lazy
+  triggerStyle={{ minHeight: '1px' }}
+  render={...}
+/>
+
+```
 
 #### onError()
 
@@ -260,7 +207,7 @@ This value will be used as rootMargin for IntersectionObserver (See [rootMargin]
 
 #### onUnload()
 
-## API: @lazy
+## API: `@lazy`
 
 Usage:
 
@@ -344,8 +291,18 @@ const myComponent = lazy({
 })();
 ```
 
-#### render: function(status, props, Component)
-
 ## API: setHistory
 
 Set [history](https://github.com/ReactTraining/history) instance in order to use `autoReset` feature.
+
+Example:
+
+``` javascript
+import { setHistory } from 'rrr-lazy';
+import { browserHistory } from 'react-router';
+setHistory(browserHistory);
+```
+
+## LICENSE
+
+MIT
