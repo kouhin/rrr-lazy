@@ -13,7 +13,7 @@ const Status = {
 export default class Lazy extends React.PureComponent {
   static propTypes = {
     autoReset: PropTypes.bool,
-    render: PropTypes.func,
+    render: PropTypes.func.isRequired,
     root: PropTypes.oneOfType(
       [PropTypes.string].concat(
         typeof HTMLElement === 'undefined'
@@ -34,12 +34,11 @@ export default class Lazy extends React.PureComponent {
       autoReset: true,
       root: null,
       rootMargin: null,
-      render: null,
       triggerStyle: null,
-      onError: () => null,
-      onLoaded: () => null,
-      onLoading: () => null,
-      onUnload: () => null
+      onError: null,
+      onLoaded: null,
+      onLoading: null,
+      onUnload: null
     };
   }
 
@@ -119,8 +118,10 @@ export default class Lazy extends React.PureComponent {
       return;
     }
     this.stopListen();
-    this.props.onUnload();
     this.setState({ status: Status.Unload });
+    if (this.props.onUnload) {
+      this.props.onUnload();
+    }
   }
 
   enterViewport() {
@@ -131,17 +132,27 @@ export default class Lazy extends React.PureComponent {
       .then(() => {
         if (!this.node) throw new Error('ABORT');
         this.setState({ status: Status.Loading });
-        return this.props.onLoading();
+        if (this.props.onLoading) {
+          return this.props.onLoading();
+        }
+        return null;
       })
       .then(() => {
         if (!this.node) throw new Error('ABORT');
         this.setState({ status: Status.Loaded });
-        return this.props.onLoaded();
+        if (this.props.onLoaded) {
+          return this.props.onLoaded();
+        }
+        return null;
       })
       .catch(error => {
         if (error.message !== 'ABORT') {
-          this.props.onError();
+          if (this.props.onError) {
+            return this.props.onError(error);
+          }
+          throw error;
         }
+        return null;
       });
   }
 
