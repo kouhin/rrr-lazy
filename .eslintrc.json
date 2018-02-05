@@ -1,64 +1,24 @@
 {
-  "root": true,
   "parser": "babel-eslint",
-  "extends": "eslint-config-airbnb",
+  "extends": [
+    "airbnb",
+    "prettier"
+  ],
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
   "env": {
-    "browser": true,
+    "es6": true,
     "node": true,
-    "mocha": true
+    "browser": true
   },
   "plugins": [
-    "react",
-    "import",
-    "babel"
+    "markdown"
   ],
   "rules": {
-    "no-console": 0,
-    "operator-linebreak": [
-      2,
-      "after",
-      {
-        "overrides": {
-          "?": "before",
-          ":": "before"
-        }
-      }
-    ],
-    "react/jsx-boolean-value": [
-      2,
-      "always"
-    ],
-    "react/prefer-stateless-function": 0,
-    "react/jsx-handler-names": [
-      2,
-      {
-        "eventHandlerPrefix": "handle",
-        "eventHandlerPropPrefix": "on"
-      }
-    ],
-    "react/jsx-no-duplicate-props": [
-      2,
-      {
-        "ignoreCase": false
-      }
-    ],
-    "react/jsx-sort-props": [
-      2,
-      {
-        "callbacksLast": true,
-        "shorthandFirst": false,
-        "ignoreCase": true
-      }
-    ],
-    "react/sort-prop-types": [
-      2,
-      {
-        "ignoreCase": true,
-        "callbacksLast": true
-      }
-    ],
-    "no-await-in-loop": 2,
-    "import/no-extraneous-dependencies": 0,
     "react/jsx-filename-extension": 0
   }
 }
