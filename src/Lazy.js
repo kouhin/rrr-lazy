@@ -10,38 +10,7 @@ const Status = {
   Loaded: 'loaded'
 };
 
-export default class Lazy extends React.PureComponent {
-  static propTypes = {
-    autoReset: PropTypes.bool,
-    render: PropTypes.func.isRequired,
-    root: PropTypes.oneOfType(
-      [PropTypes.string].concat(
-        typeof HTMLElement === 'undefined'
-          ? []
-          : PropTypes.instanceOf(HTMLElement)
-      )
-    ),
-    rootMargin: PropTypes.string,
-    triggerStyle: PropTypes.object, // eslint-disable-line
-    onError: PropTypes.func,
-    onLoaded: PropTypes.func,
-    onLoading: PropTypes.func,
-    onUnload: PropTypes.func
-  };
-
-  static get defaultProps() {
-    return {
-      autoReset: true,
-      root: null,
-      rootMargin: null,
-      triggerStyle: null,
-      onError: null,
-      onLoaded: null,
-      onLoading: null,
-      onUnload: null
-    };
-  }
-
+class Lazy extends React.PureComponent {
   constructor(props) {
     super(props);
     this.resetState = this.resetState.bind(this);
@@ -54,7 +23,8 @@ export default class Lazy extends React.PureComponent {
   }
 
   componentDidMount() {
-    if (this.props.autoReset) {
+    const { autoReset } = this.props;
+    if (autoReset) {
       const history = getHistory();
       if (history && history.listen) {
         this.unlistenHistory = history.listen(() => {
@@ -66,10 +36,8 @@ export default class Lazy extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (
-      this.state.status !== prevState.status &&
-      this.state.status === Status.Unload
-    ) {
+    const { status } = this.state;
+    if (status !== prevState.status && status === Status.Unload) {
       this.startListen();
     }
   }
@@ -79,6 +47,9 @@ export default class Lazy extends React.PureComponent {
     if (this.unlistenHistory) {
       this.unlistenHistory();
       this.unlistenHistory = null;
+    }
+    if (this.node) {
+      this.node = null;
     }
   }
 
@@ -114,41 +85,45 @@ export default class Lazy extends React.PureComponent {
   }
 
   resetState() {
-    if (this.state.status === Status.Unload) {
+    const { status } = this.state;
+    const { onUnload } = this.props;
+    if (status === Status.Unload) {
       return;
     }
     this.stopListen();
     this.setState({ status: Status.Unload });
-    if (this.props.onUnload) {
-      this.props.onUnload();
+    if (onUnload) {
+      onUnload();
     }
   }
 
   enterViewport() {
-    if (!this.node || this.state.status !== Status.Unload) {
+    const { status } = this.state;
+    const { onLoading, onLoaded, onError } = this.props;
+    if (!this.node || status !== Status.Unload) {
       return null;
     }
     return Promise.resolve()
       .then(() => {
         if (!this.node) throw new Error('ABORT');
         this.setState({ status: Status.Loading });
-        if (this.props.onLoading) {
-          return this.props.onLoading();
+        if (onLoading) {
+          return onLoading();
         }
         return null;
       })
       .then(() => {
         if (!this.node) throw new Error('ABORT');
         this.setState({ status: Status.Loaded });
-        if (this.props.onLoaded) {
-          return this.props.onLoaded();
+        if (onLoaded) {
+          return onLoaded();
         }
         return null;
       })
       .catch(error => {
         if (error.message !== 'ABORT') {
-          if (this.props.onError) {
-            return this.props.onError(error);
+          if (onError) {
+            return onError(error);
           }
           throw error;
         }
@@ -162,28 +137,61 @@ export default class Lazy extends React.PureComponent {
       root,
       rootMargin,
       render,
-      triggerStyle,
+      loaderComponent,
+      loaderProps = {},
       onLoaded,
       onLoading,
       onUnload,
       onError,
       ...restProps
     } = this.props;
+    const { status } = this.state;
 
-    const triggerProps = {
-      ref: node => {
-        this.node = node;
-      }
-    };
-    if (triggerStyle) {
-      triggerProps.style = triggerStyle;
+    if (status !== Status.Loaded) {
+      return React.createElement(
+        loaderComponent,
+        {
+          ...loaderProps,
+          ref: node => {
+            this.node = node;
+          }
+        },
+        render(status, restProps)
+      );
     }
-
-    return (
-      <>
-        <div {...triggerProps} />
-        {this.props.render(this.state.status, restProps)}
-      </>
-    );
+    return render(status, restProps);
   }
 }
+
+Lazy.propTypes = {
+  autoReset: PropTypes.bool,
+  render: PropTypes.func.isRequired,
+  root: PropTypes.oneOfType(
+    [PropTypes.string].concat(
+      typeof HTMLElement === 'undefined'
+        ? []
+        : PropTypes.instanceOf(HTMLElement)
+    )
+  ),
+  rootMargin: PropTypes.string,
+  loaderComponent: PropTypes.string,
+  loaderProps: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  onError: PropTypes.func,
+  onLoaded: PropTypes.func,
+  onLoading: PropTypes.func,
+  onUnload: PropTypes.func
+};
+
+Lazy.defaultProps = {
+  autoReset: true,
+  root: null,
+  rootMargin: null,
+  loaderComponent: 'div',
+  loaderProps: null,
+  onError: null,
+  onLoaded: null,
+  onLoading: null,
+  onUnload: null
+};
+
+export default Lazy;

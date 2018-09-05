@@ -1,7 +1,7 @@
 rrr-lazy
 =========================
 
-Lazy load component with react && react-router && react-router-hook.
+Lazy load component with react && react-router.
 
 [![CircleCI](https://circleci.com/gh/kouhin/rrr-lazy/tree/master.svg?style=svg)](https://circleci.com/gh/kouhin/rrr-lazy/tree/master)
 [![dependency status](https://david-dm.org/kouhin/rrr-lazy.svg?style=flat-square)](https://david-dm.org/kouhin/rrr-lazy)
@@ -118,86 +118,41 @@ class App extends React.Component {
 }
 ```
 
-
-### Use with react-router-hook
-
-It also provides a decorator for better support for lazy data loading with react-router, react-router-hook.
-
-```jsx
-import React from 'react';
-import { lazy } from 'rrr-lazy';
-import { routerHooks } from 'react-router-hook';
-
-@lazy({
-  render: (status, props, Component) => {
-    if (status === 'unload') {
-      return <div style={{ height: 720 }}>Unload</div>;
-    } else if (status === 'loading') {
-      return <div style={{ height: 720 }}>Loading</div>;
-    } else {
-      return <Component {...props} />;
-    }
-  },
-  onLoaded: () => console.log('look ma I have been lazyloaded!')
-})
-@routerHooks({
-  fetch: async () => {
-    await fetchData();
-  },
-  defer: async () => {
-    await fetchDeferredData();
-  },
-})
-class MyComponent extends React.Component {
-  render() {
-    return (
-      <div>
-        <img src='http://apod.nasa.gov/apod/image/1502/HDR_MVMQ20Feb2015ouellet1024.jpg' />
-      </div>
-    );
-  }
-}
-```
-
-## API: `<Lazy audoReset={true} root rootMargin render triggerStyle onError onLoaded onUnload onUnloaded />`
+## API: `<Lazy audoReset={true} root rootMargin render loaderComponent loaderProps onError onLoaded onUnload onUnloaded />`
 
 ### Props
 
-#### autoReset
+#### `autoReset`
 Type: `Boolean` Default: `true`
 
 Auto reset Lazy component when history changed (history must be set by `setHistory`, see below).
 
-#### root
+#### `root`
 Type: `String|HTMLElement` Default: `null`
 
 This value will be used as root for IntersectionObserver (See [root](https://www.w3.org/TR/intersection-observer/#dom-intersectionobserver-root).
 
-#### rootMargin
+#### `rootMargin`
 Type: `String` Default: `null`
 
 This value will be used as rootMargin for IntersectionObserver (See [rootMargin](https://www.w3.org/TR/intersection-observer/#dom-intersectionobserverinit-rootmargin).
 
-#### **render(status, props)**
+#### `render(status, props)`
 Type: `Function` **Required**
 
 `status` can be `unload`, `loading`, `loaded`.
 
 `props` are props that passed from `Lazy`. This is designed for `@lazy`, and when you use `<Lazy>` component, you may not need it.
 
-#### triggerStyle
+#### `loaderComponent`
+Type: `string` Default: `div`
 
-Set the style of trigger. On some old browsers (Chrome 51 - 57 ?) IntersectionObserver may not work properly. You can use `triggerStyle` to do the trick.
+#### `laoderProps`
+Type: `string` Default: `{}`
 
-Example:
+`loaderComponent` and `loaderProps` is used to create a LoaderComponent when status is `unload` or `loaded`.
 
-``` javascript
-<Lazy
-  triggerStyle={{ minHeight: '1px' }}
-  render={...}
-/>
-
-```
+The result of `render(status, props)` will be passed to LoaderComponent as `children`.
 
 #### onError()
 
