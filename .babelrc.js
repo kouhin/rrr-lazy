@@ -3,11 +3,14 @@ module.exports = {
     [
       '@babel/preset-env',
       {
-        modules: process.env.BABEL_ENV === 'es' ? false : 'commonjs',
-        forceAllTransforms: process.env.NODE_ENV === 'production'
+        targets: {
+          browsers: ['ie >= 11']
+        },
+        modules: process.env.NODE_ENV === 'test' ? 'commonjs' : false,
+        loose: true
       }
     ],
-    '@babel/react',
-    '@babel/stage-1'
-  ]
+    '@babel/preset-react'
+  ],
+  plugins: ['@babel/plugin-proposal-object-rest-spread']
 };
