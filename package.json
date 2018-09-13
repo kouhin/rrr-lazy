@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "description": "Lazy load component with react && react-router.",
   "source": "src/index.js",
-  "module": "dist/rrr-lazy.mjs",
+  "module": "dist/rrr-lazy.esm.js",
   "main": "dist/rrr-lazy.js",
   "umd:main": "dist/rrr-lazy.umd.js",
   "scripts": {
