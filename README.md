@@ -246,16 +246,23 @@ const myComponent = lazy({
 })();
 ```
 
-## API: setHistory
+## API: LazyProvider
 
-Set [history](https://github.com/ReactTraining/history) instance in order to use `autoReset` feature.
+You can optionally use `LazyProvider` and pass a version (such as location) to the `value` prop.
+All of the Lazy instances will be reset when version changed.
 
 Example:
 
 ``` javascript
-import { setHistory } from 'rrr-lazy';
-import { browserHistory } from 'react-router';
-setHistory(browserHistory);
+class Application extends React.Component {
+  render() {
+    // when pathname changed, all of the Lazy instances will be reset.
+    const { pathname, children } = this.state;
+    <LazyProvider value={pathname}>
+      { children }
+    </LazyProvider>
+  }
+}
 ```
 
 ## LICENSE
