@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 import Lazy from './Lazy';
 
@@ -68,17 +69,20 @@ LazyDecorated.propTypes = {
   ownProps: PropTypes.object.isRequired
 };
 
-const lazy = opts => Component => {
+const lazy = opts => WrappedComponent => {
   const { getComponent, ...lazyProps } = opts;
-  return ownProps => (
+  const Component = ownProps => (
     <LazyDecorated
       getComponent={
-        getComponent === 'function' ? getComponent : () => Component
+        getComponent === 'function' ? getComponent : () => WrappedComponent
       }
       lazyProps={lazyProps}
       ownProps={ownProps}
     />
   );
+  Component.WrappedComponent = WrappedComponent;
+  hoistNonReactStatics(Component, WrappedComponent);
+  return Component;
 };
 
 export default lazy;
