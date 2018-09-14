@@ -118,14 +118,9 @@ class App extends React.Component {
 }
 ```
 
-## API: `<Lazy audoReset={true} root rootMargin render loaderComponent loaderProps onError onLoaded onUnload onUnloaded />`
+## API: `<Lazy root rootMargin render loaderComponent loaderProps onError onLoaded onUnload onUnloaded />`
 
 ### Props
-
-#### `autoReset`
-Type: `Boolean` Default: `true`
-
-Auto reset Lazy component when history changed (history must be set by `setHistory`, see below).
 
 #### `root`
 Type: `String|HTMLElement` Default: `null`
