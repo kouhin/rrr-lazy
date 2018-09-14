@@ -1,5 +1,5 @@
 import Lazy from './Lazy';
 import lazy from './decorator';
-import { setHistory } from './history';
+import { LazyProvider } from './context';
 
-export { Lazy, lazy, setHistory };
+export { Lazy, lazy, LazyProvider };
