@@ -67,7 +67,8 @@
   "dependencies": {
     "create-react-context": "^0.2.3",
     "hoist-non-react-statics": "^3.2.0",
-    "prop-types": "^15.6.2"
+    "prop-types": "^15.6.2",
+    "react-fast-compare": "^2.0.4"
   },
   "peerDependencies": {
     "react": ">=16.2.0",
