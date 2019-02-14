@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import isDeepEqual from 'react-fast-compare';
 
 import { LazyConsumer } from './context';
 import createIntersectionListener from './intersectionListener';
@@ -12,7 +13,7 @@ const Status = {
 
 const VERSION_PROP = '@@rrr-lazy/Version';
 
-class Lazy extends React.PureComponent {
+class Lazy extends React.Component {
   constructor(props) {
     super(props);
     this.startListen = this.startListen.bind(this);
@@ -41,6 +42,10 @@ class Lazy extends React.PureComponent {
     this.startListen();
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return !isDeepEqual(this.props, nextProps) || !isDeepEqual(this.state, nextState);
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const { status } = this.state;
     const { onUnload } = this.props;
@@ -54,31 +59,25 @@ class Lazy extends React.PureComponent {
 
   componentWillUnmount() {
     this.stopListen();
-    if (this.unlistenHistory) {
-      this.unlistenHistory();
-      this.unlistenHistory = null;
-    }
     if (this.node) {
       this.node = null;
     }
   }
 
   startListen() {
-    if (!Lazy.intersectionListener) {
-      const { root, rootMargin } = this.props;
-      const opts = {};
-      if (root) {
-        opts.root =
-          typeof root === 'string' ? document.querySelector(root) : root;
-      }
-      if (rootMargin) {
-        opts.rootMargin = rootMargin;
-      }
-      Lazy.intersectionListener = createIntersectionListener(opts);
-    }
     this.stopListen();
+    const { root, rootMargin } = this.props;
+    const opts = {};
+    if (root) {
+      opts.root =
+        typeof root === 'string' ? document.querySelector(root) : root;
+    }
+    if (rootMargin) {
+      opts.rootMargin = rootMargin;
+    }
+    const intersectionListener = createIntersectionListener(opts);
     if (this.node && !this.unlisten) {
-      this.unlisten = Lazy.intersectionListener.listen(this.node, entry => {
+      this.unlisten = intersectionListener.listen(this.node, entry => {
         if (entry.isIntersecting || entry.intersectionRatio > 0) {
           this.stopListen();
           this.enterViewport();
