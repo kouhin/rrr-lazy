@@ -1,6 +1,6 @@
 {
   "name": "rrr-lazy",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "Lazy load component with react && react-router.",
   "source": "src/index.js",
   "module": "dist/rrr-lazy.esm.js",
